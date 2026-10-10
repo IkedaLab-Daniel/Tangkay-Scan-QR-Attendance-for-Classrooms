@@ -4,6 +4,7 @@ import cookieParser from 'cookie-parser';
 import cors from 'cors';
 import authRouter from './routes/auth';
 import roomsRouter from './routes/rooms';
+import studentAuthRouter from './routes/studentAuth';
 
 const app = express();
 const PORT = process.env.PORT ?? 4000;
@@ -17,6 +18,7 @@ app.get('/health', (_req, res) => {
 });
 
 app.use('/api/auth', authRouter);
+app.use('/api/auth/student', studentAuthRouter);
 app.use('/api/rooms', roomsRouter);
 
 if (require.main === module) {

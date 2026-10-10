@@ -2,6 +2,7 @@ import { Queue } from 'bullmq';
 import redis from './redis';
 
 export interface EmailJobData {
+  type: 'welcome' | 'magic-link' | 'generic';
   to: string;
   subject: string;
   html: string;

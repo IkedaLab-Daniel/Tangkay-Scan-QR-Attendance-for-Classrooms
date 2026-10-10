@@ -13,6 +13,7 @@ declare global {
   namespace Express {
     interface Request {
       user?: { id: string; typ: string };
+      member?: import('@prisma/client').RoomMember;
     }
   }
 }
