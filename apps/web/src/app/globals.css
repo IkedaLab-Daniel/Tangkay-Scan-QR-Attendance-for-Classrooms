@@ -1,3 +1,112 @@
+@import url('https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:opsz,wght@12..96,600;700&family=DM+Sans:opsz,wght@9..40,400;9..40,600&family=Material+Symbols+Outlined:opsz,wght,FILL,GRAD@20..48,100..700,0..1,-50..200&display=swap');
+
 @tailwind base;
 @tailwind components;
 @tailwind utilities;
+
+@layer base {
+  html {
+    @apply bg-background text-on-surface;
+  }
+  body {
+    @apply font-sans text-body-lg;
+    overscroll-behavior: none;
+    min-height: max(884px, 100dvh);
+  }
+  ::-webkit-scrollbar {
+    display: none;
+  }
+}
+
+@layer components {
+  .auth-input {
+    @apply w-full bg-surface-container-low text-on-surface placeholder:text-outline font-sans text-body-md px-3.5 py-3 rounded-xl border border-outline-variant outline-none transition-all duration-150;
+    @apply focus:bg-surface-container-lowest focus:ring-2 focus:ring-primary/40 focus:border-primary;
+  }
+}
+
+
+@keyframes sprout-pop {
+  0%   { transform: scale(0) rotate(-15deg); opacity: 0; }
+  60%  { transform: scale(1.2) rotate(5deg);  opacity: 1; }
+  100% { transform: scale(1)   rotate(0deg);  opacity: 1; }
+}
+
+.animate-sprout {
+  animation: sprout-pop 600ms cubic-bezier(0.34, 1.56, 0.64, 1) forwards;
+}
+
+
+@layer utilities {
+  .pt-safe {
+    padding-top: env(safe-area-inset-top, 0px);
+  }
+  .pb-safe {
+    padding-bottom: env(safe-area-inset-bottom, 0px);
+  }
+  .font-headline-xl {
+    font-family: 'Bricolage Grotesque', system-ui, sans-serif;
+    font-size: 36px;
+    line-height: 44px;
+    font-weight: 700;
+  }
+  .font-headline-xl-mobile {
+    font-family: 'Bricolage Grotesque', system-ui, sans-serif;
+    font-size: 28px;
+    line-height: 36px;
+    font-weight: 700;
+  }
+  .font-headline-lg {
+    font-family: 'Bricolage Grotesque', system-ui, sans-serif;
+    font-size: 24px;
+    line-height: 32px;
+    font-weight: 700;
+  }
+  .font-headline-md {
+    font-family: 'Bricolage Grotesque', system-ui, sans-serif;
+    font-size: 20px;
+    line-height: 28px;
+    font-weight: 600;
+  }
+  .font-headline-sm {
+    font-family: 'Bricolage Grotesque', system-ui, sans-serif;
+    font-size: 18px;
+    line-height: 24px;
+    font-weight: 600;
+  }
+  .font-body-lg {
+    font-family: 'DM Sans', system-ui, sans-serif;
+    font-size: 16px;
+    line-height: 24px;
+  }
+  .font-body-md {
+    font-family: 'DM Sans', system-ui, sans-serif;
+    font-size: 14px;
+    line-height: 20px;
+  }
+  .font-body-sm {
+    font-family: 'DM Sans', system-ui, sans-serif;
+    font-size: 12px;
+    line-height: 16px;
+  }
+  .font-label-lg {
+    font-family: 'DM Sans', system-ui, sans-serif;
+    font-size: 14px;
+    line-height: 20px;
+    font-weight: 600;
+  }
+  .font-label-md {
+    font-family: 'DM Sans', system-ui, sans-serif;
+    font-size: 12px;
+    line-height: 16px;
+    font-weight: 600;
+    letter-spacing: 0.02em;
+  }
+  .font-label-sm {
+    font-family: 'DM Sans', system-ui, sans-serif;
+    font-size: 11px;
+    line-height: 14px;
+    font-weight: 600;
+    letter-spacing: 0.03em;
+  }
+}

@@ -275,6 +275,7 @@ model BackgroundReport {
   id                     String   @id @default(cuid())
   room_id                String
   reported_by_student_id String
+  reason                 String?
   created_at             DateTime @default(now())
 
   room    Room    @relation(fields: [room_id], references: [id], onDelete: Cascade)

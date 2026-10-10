@@ -52,23 +52,25 @@ function issueStudentAccessToken(studentId: string): string {
 
 function issueStudentRefreshToken(studentId: string): string {
   return jwt.sign(
-    { typ: 'student' },
+    { typ: 'student', jti: crypto.randomBytes(16).toString('hex') },
     process.env.JWT_REFRESH_SECRET as string,
     { subject: studentId, expiresIn: '7d' },
   );
 }
 
 function setStudentCookies(res: Response, accessToken: string, refreshToken: string): void {
-  const secure = process.env.NODE_ENV === 'production';
+  const prod = process.env.NODE_ENV === 'production';
+  const sameSite = prod ? 'none' : 'lax';
+  const secure = prod;
   res.cookie(ACCESS_COOKIE, accessToken, {
     httpOnly: true,
-    sameSite: 'strict',
+    sameSite,
     secure,
     maxAge: ACCESS_TTL_MS,
   });
   res.cookie(REFRESH_COOKIE, refreshToken, {
     httpOnly: true,
-    sameSite: 'strict',
+    sameSite,
     secure,
     maxAge: REFRESH_TTL_MS,
     path: '/api/auth/student/refresh',
@@ -303,11 +305,11 @@ router.post('/refresh', async (req: Request, res: Response): Promise<void> => {
   const studentId = payload.sub as string;
   const newAccessToken = issueStudentAccessToken(studentId);
 
-  const secure = process.env.NODE_ENV === 'production';
+  const prod = process.env.NODE_ENV === 'production';
   res.cookie(ACCESS_COOKIE, newAccessToken, {
     httpOnly: true,
-    sameSite: 'strict',
-    secure,
+    sameSite: prod ? 'none' : 'lax',
+    secure: prod,
     maxAge: ACCESS_TTL_MS,
   });
 
