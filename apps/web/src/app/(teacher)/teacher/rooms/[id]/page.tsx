@@ -172,20 +172,20 @@ function RoomDetailContent() {
   const [saving, setSaving] = useState(false);
 
   const loadMembers = useCallback(() => {
-    api.get<{ members: RoomMember[] }>(`/api/rooms/${id}/members`)
-      .then((d) => setMembers(d.members))
+    api.get<RoomMember[]>(`/api/rooms/${id}/members`)
+      .then((d) => setMembers(Array.isArray(d) ? d : []))
       .catch(() => setMembers([]));
   }, [id]);
 
   useEffect(() => {
     Promise.all([
       api.get<Room>(`/api/rooms/${id}`).catch(() => null),
-      api.get<{ members: RoomMember[] }>(`/api/rooms/${id}/members`).catch(() => ({ members: [] })),
-      api.get<{ sessions: AttendanceSession[] }>(`/api/rooms/${id}/sessions`).catch(() => ({ sessions: [] })),
+      api.get<RoomMember[]>(`/api/rooms/${id}/members`).catch(() => []),
+      api.get<AttendanceSession[]>(`/api/rooms/${id}/sessions`).catch(() => []),
     ]).then(([roomData, memberData, sessionData]) => {
       setRoom(roomData);
-      setMembers(memberData.members);
-      setSessions(sessionData.sessions);
+      setMembers(Array.isArray(memberData) ? memberData : []);
+      setSessions(Array.isArray(sessionData) ? sessionData : []);
     }).finally(() => setLoading(false));
   }, [id]);
 
