@@ -1,15 +1,22 @@
 import { Router, Request, Response } from 'express';
 import { customAlphabet } from 'nanoid';
+import crypto from 'crypto';
 import { z } from 'zod';
 import { PrismaClient } from '@prisma/client';
 import { requireAuth } from '../middleware/auth';
 import { getModePreset } from '../lib/modePresets';
+import joinRouter from './join';
+import officersRouter from './officers';
 
 const router = Router();
 const prisma = new PrismaClient();
 
 // URL-safe alphabet (A-Z a-z 0-9 _ -)
 const nanoid = customAlphabet('ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789_-', 8);
+
+function sha256(value: string): string {
+  return crypto.createHash('sha256').update(value).digest('hex');
+}
 
 // ─── Schemas ──────────────────────────────────────────────────────────────────
 
@@ -44,6 +51,30 @@ const patchRoomSchema = z.object({
   background_dim: z.number().int().min(0).max(100).optional(),
   background_blur: z.number().int().min(0).max(100).optional(),
   background_scrim: z.enum(['light', 'dark']).optional(),
+});
+
+// ─── GET /api/rooms/join/:inviteCode — public ─────────────────────────────────
+
+router.get('/join/:inviteCode', async (req: Request, res: Response): Promise<void> => {
+  const room = await prisma.room.findUnique({
+    where: { invite_code: req.params.inviteCode },
+    select: {
+      id: true,
+      name: true,
+      teacher: { select: { name: true } },
+    },
+  });
+
+  if (!room) {
+    res.status(404).json({ error: 'Invalid invite code' });
+    return;
+  }
+
+  res.json({
+    roomId: room.id,
+    roomName: room.name,
+    teacherName: room.teacher.name,
+  });
 });
 
 // ─── POST /api/rooms ──────────────────────────────────────────────────────────
@@ -168,5 +199,98 @@ router.patch('/:id', requireAuth('teacher'), async (req: Request, res: Response)
 
   res.json(updated);
 });
+
+// ─── POST /api/rooms/:id/join-codes — teacher generates a code for a student ──
+
+router.post('/:id/join-codes', requireAuth('teacher'), async (req: Request, res: Response): Promise<void> => {
+  const joinCodeSchema = z.object({
+    studentName: z.string().min(2),
+    parentEmail: z.string().email().optional(),
+  });
+
+  const parsed = joinCodeSchema.safeParse(req.body);
+  if (!parsed.success) {
+    res.status(400).json({ error: 'Validation failed', details: parsed.error.flatten() });
+    return;
+  }
+
+  const room = await prisma.room.findUnique({ where: { id: req.params.id } });
+  if (!room) {
+    res.status(404).json({ error: 'Room not found' });
+    return;
+  }
+  if (room.teacher_id !== req.user!.id) {
+    res.status(403).json({ error: 'Forbidden' });
+    return;
+  }
+
+  const { studentName, parentEmail } = parsed.data;
+
+  // Generate 6-digit numeric code (plaintext shown once to teacher)
+  const plainCode = String(Math.floor(100000 + Math.random() * 900000));
+  const codeHash = sha256(plainCode);
+  const expiresAt = new Date(Date.now() + 24 * 60 * 60 * 1000); // 24h
+
+  // Find-or-create student by parentEmail or name
+  let student = parentEmail
+    ? await prisma.student.findFirst({ where: { parent_email: parentEmail } })
+    : null;
+
+  if (student) {
+    // Update existing student with new code
+    student = await prisma.student.update({
+      where: { id: student.id },
+      data: {
+        name: studentName,
+        join_code: codeHash,
+        magic_link_expires_at: expiresAt,
+      },
+    });
+  } else {
+    // Try to create; handle unique constraint collision on join_code
+    student = await prisma.student.create({
+      data: {
+        name: studentName,
+        parent_email: parentEmail,
+        join_code: codeHash,
+        magic_link_expires_at: expiresAt,
+      },
+    });
+  }
+
+  res.status(201).json({ joinCode: plainCode, studentId: student.id, expiresAt });
+});
+
+// ─── GET /api/rooms/:id/members ───────────────────────────────────────────────
+
+router.get('/:id/members', requireAuth('teacher'), async (req: Request, res: Response): Promise<void> => {
+  const room = await prisma.room.findUnique({ where: { id: req.params.id } });
+
+  if (!room) {
+    res.status(404).json({ error: 'Room not found' });
+    return;
+  }
+
+  if (room.teacher_id !== req.user!.id) {
+    res.status(403).json({ error: 'Forbidden' });
+    return;
+  }
+
+  const members = await prisma.roomMember.findMany({
+    where: { room_id: req.params.id },
+    include: { student: { select: { id: true, name: true, email: true } } },
+    orderBy: [
+      { role: 'asc' },
+      { student: { name: 'asc' } },
+    ],
+  });
+
+  res.json(members);
+});
+
+// ─── Mount sub-routers ────────────────────────────────────────────────────────
+
+router.use('/:id/officers', officersRouter);
+router.use('/:id/join', joinRouter);
 
 export default router;
