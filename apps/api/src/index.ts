@@ -3,6 +3,7 @@ import express from 'express';
 import cookieParser from 'cookie-parser';
 import cors from 'cors';
 import authRouter from './routes/auth';
+import roomsRouter from './routes/rooms';
 
 const app = express();
 const PORT = process.env.PORT ?? 4000;
@@ -16,9 +17,12 @@ app.get('/health', (_req, res) => {
 });
 
 app.use('/api/auth', authRouter);
+app.use('/api/rooms', roomsRouter);
 
-app.listen(PORT, () => {
-  console.log(`[api] listening on http://localhost:${PORT}`);
-});
+if (require.main === module) {
+  app.listen(PORT, () => {
+    console.log(`[api] listening on http://localhost:${PORT}`);
+  });
+}
 
 export default app;
