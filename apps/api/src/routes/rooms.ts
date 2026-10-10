@@ -280,7 +280,8 @@ router.get('/:id/members', requireAuth('teacher'), async (req: Request, res: Res
     where: { room_id: req.params.id },
     include: { student: { select: { id: true, name: true, email: true } } },
     orderBy: [
-      { role: 'asc' },
+      // 'officer' has higher enum index than 'student', so desc puts officers first
+      { role: 'desc' },
       { student: { name: 'asc' } },
     ],
   });
