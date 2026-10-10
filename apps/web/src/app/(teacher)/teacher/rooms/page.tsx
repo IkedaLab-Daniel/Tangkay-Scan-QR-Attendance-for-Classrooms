@@ -48,8 +48,8 @@ function RoomsContent() {
 
   useEffect(() => {
     api
-      .get<{ rooms: Room[] }>('/api/rooms')
-      .then((data) => setRooms(data.rooms))
+      .get<Room[]>('/api/rooms')
+      .then((data) => setRooms(Array.isArray(data) ? data : []))
       .catch(() => setRooms([]))
       .finally(() => setLoading(false));
   }, []);

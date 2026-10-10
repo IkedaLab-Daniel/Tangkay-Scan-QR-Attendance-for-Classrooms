@@ -4,6 +4,7 @@ import React, { useEffect, useState } from 'react';
 import { useRouter } from 'next/navigation';
 import { SproutIcon, Spinner } from '@/components/ui';
 import { useAuth } from '@/lib/auth';
+import { api } from '@/lib/api';
 
 type Tab = 'signup' | 'login';
 
