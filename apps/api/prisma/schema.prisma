@@ -1,0 +1,284 @@
+// This is your Prisma schema file,
+// learn more about it in the docs: https://pris.ly/d/prisma-schema
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+// ─────────────────────────────────────────────
+// Teachers
+// ─────────────────────────────────────────────
+
+model Teacher {
+  id            String   @id @default(cuid())
+  name          String
+  email         String   @unique
+  password_hash String
+  plan          String   @default("free")
+  created_at    DateTime @default(now())
+
+  rooms          Room[]
+  refresh_tokens RefreshToken[]
+
+  @@map("teachers")
+}
+
+// ─────────────────────────────────────────────
+// Rooms
+// ─────────────────────────────────────────────
+
+enum AttendanceMode {
+  strict
+  balanced
+  static
+  manual
+}
+
+enum QrType {
+  rotating
+  static
+}
+
+enum GpsPolicy {
+  off
+  warn
+  reject
+}
+
+enum SelfiePolicy {
+  off
+  optional
+  required
+}
+
+enum BackgroundType {
+  none
+  preset
+  custom
+}
+
+enum BackgroundScrim {
+  light
+  dark
+}
+
+model Room {
+  id              String         @id @default(cuid())
+  teacher_id      String
+  name            String
+  invite_code     String         @unique
+  attendance_mode AttendanceMode @default(balanced)
+  qr_type         QrType         @default(rotating)
+  static_qr_token String?
+
+  // Geofence
+  anchor_lat          Float?
+  anchor_lng          Float?
+  geofence_radius_m   Int       @default(100)
+  gps_policy          GpsPolicy @default(warn)
+
+  // Selfie
+  selfie_policy SelfiePolicy @default(optional)
+
+  // Approval
+  require_manual_approval Boolean @default(true)
+
+  // Session window (reserved — not used in MVP)
+  session_window String?
+
+  // Background
+  background_type         BackgroundType  @default(none)
+  background_preset_id    String?
+  background_image_path   String?
+  background_placeholder  String?
+  background_dim          Int             @default(35)
+  background_blur         Int             @default(0)
+  background_scrim        BackgroundScrim @default(dark)
+
+  created_at DateTime @default(now())
+
+  teacher             Teacher              @relation(fields: [teacher_id], references: [id], onDelete: Cascade)
+  members             RoomMember[]
+  sessions            AttendanceSession[]
+  background_reports  BackgroundReport[]
+
+  @@map("rooms")
+}
+
+// ─────────────────────────────────────────────
+// Students
+// ─────────────────────────────────────────────
+
+enum ConsentStatus {
+  pending
+  granted
+  denied
+}
+
+model Student {
+  id                     String        @id @default(cuid())
+  name                   String
+  email                  String?
+  parent_email           String?
+  consent_status         ConsentStatus @default(pending)
+  magic_link_token_hash  String?
+  magic_link_expires_at  DateTime?
+  join_code              String?       @unique
+  created_at             DateTime      @default(now())
+
+  room_members        RoomMember[]
+  attendance_records  AttendanceRecord[]
+  refresh_tokens      RefreshToken[]
+  background_reports  BackgroundReport[]
+
+  @@map("students")
+}
+
+// ─────────────────────────────────────────────
+// Room Members
+// ─────────────────────────────────────────────
+
+enum MemberRole {
+  student
+  officer
+}
+
+model RoomMember {
+  id            String     @id @default(cuid())
+  room_id       String
+  student_id    String
+  role          MemberRole @default(student)
+  officer_title String?
+  joined_at     DateTime   @default(now())
+
+  room    Room    @relation(fields: [room_id], references: [id], onDelete: Cascade)
+  student Student @relation(fields: [student_id], references: [id], onDelete: Cascade)
+
+  @@unique([room_id, student_id])
+  @@map("room_members")
+}
+
+// ─────────────────────────────────────────────
+// Attendance Sessions
+// ─────────────────────────────────────────────
+
+enum SessionStatus {
+  active
+  ended
+}
+
+model AttendanceSession {
+  id                     String        @id @default(cuid())
+  room_id                String
+  started_by_officer_id  String?
+  origin_lat             Float?
+  origin_lng             Float?
+  origin_accuracy        Float?
+  status                 SessionStatus @default(active)
+  started_at             DateTime      @default(now())
+  ended_at               DateTime?
+
+  room    Room               @relation(fields: [room_id], references: [id], onDelete: Cascade)
+  records AttendanceRecord[]
+
+  @@map("attendance_sessions")
+}
+
+// ─────────────────────────────────────────────
+// Attendance Records
+// ─────────────────────────────────────────────
+
+enum AttendanceMethod {
+  qr_scan
+  manual
+}
+
+enum ApprovalStatus {
+  approved
+  pending
+  rejected
+}
+
+enum LocationFlag {
+  verified
+  unverified
+  mismatch
+}
+
+enum RiskScore {
+  low
+  medium
+  high
+}
+
+model AttendanceRecord {
+  id                    String           @id @default(cuid())
+  session_id            String
+  student_id            String
+  method                AttendanceMethod @default(qr_scan)
+  marked_by_officer_id  String?
+  approval_status       ApprovalStatus   @default(approved)
+  selfie_url            String?
+
+  // GPS
+  student_lat             Float?
+  student_lng             Float?
+  student_accuracy        Float?
+  gps_readings            Json?
+  distance_from_origin_m  Float?
+  location_flag           LocationFlag?
+
+  // Risk
+  risk_score      RiskScore?
+  risk_signals    Json?
+  device_fingerprint String?
+  ip_address      String?
+
+  scanned_at          DateTime  @default(now())
+  parent_notified_at  DateTime?
+
+  session AttendanceSession @relation(fields: [session_id], references: [id], onDelete: Cascade)
+  student Student           @relation(fields: [student_id], references: [id], onDelete: Cascade)
+
+  @@unique([session_id, student_id])
+  @@map("attendance_records")
+}
+
+// ─────────────────────────────────────────────
+// Refresh Tokens (teachers + students share table)
+// ─────────────────────────────────────────────
+
+model RefreshToken {
+  id         String    @id @default(cuid())
+  teacher_id String?
+  student_id String?
+  token_hash String    @unique
+  expires_at DateTime
+  created_at DateTime  @default(now())
+
+  teacher Teacher? @relation(fields: [teacher_id], references: [id], onDelete: Cascade)
+  student Student? @relation(fields: [student_id], references: [id], onDelete: Cascade)
+
+  @@map("refresh_tokens")
+}
+
+// ─────────────────────────────────────────────
+// Background Reports (Sub-Task 14)
+// ─────────────────────────────────────────────
+
+model BackgroundReport {
+  id                     String   @id @default(cuid())
+  room_id                String
+  reported_by_student_id String
+  created_at             DateTime @default(now())
+
+  room    Room    @relation(fields: [room_id], references: [id], onDelete: Cascade)
+  student Student @relation(fields: [reported_by_student_id], references: [id], onDelete: Cascade)
+
+  @@map("background_reports")
+}
