@@ -93,22 +93,4 @@ router.delete('/:memberId', requireAuth('teacher'), async (req: Request, res: Re
   res.json(updated);
 });
 
-// ─── GET /api/rooms/:id/members ───────────────────────────────────────────────
-
-router.get('/', requireAuth('teacher'), async (req: Request, res: Response): Promise<void> => {
-  if (!(await verifyRoomOwnership(req, res))) return;
-
-  const members = await prisma.roomMember.findMany({
-    where: { room_id: req.params.id },
-    include: { student: { select: { id: true, name: true, email: true } } },
-    orderBy: [
-      // officers first: 'officer' sorts before 'student' alphabetically
-      { role: 'asc' },
-      { student: { name: 'asc' } },
-    ],
-  });
-
-  res.json(members);
-});
-
 export default router;

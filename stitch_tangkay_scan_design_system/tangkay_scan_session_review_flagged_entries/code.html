@@ -1,0 +1,269 @@
+<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover" name="viewport"><meta content="mobile_stack" name="shell-type"><link href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:opsz,wght@12..96,600;700&amp;family=DM+Sans:ital,opsz,wght@0,9..40,400;0,9..40,600;1,9..40,400&amp;family=Material+Symbols+Outlined:opsz,wght,FILL,GRAD@20..48,100..700,0..1,-50..200" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:wght@100..900&amp;family=DM+Sans:wght@100..900&amp;display=swap" rel="stylesheet"><style>@layer base{html,body{width:100vw;margin:0;padding:0;background-color:#fdf9f2;}body{overscroll-behavior-y:none;-webkit-tap-highlight-color:transparent;}.pb-safe{padding-bottom:env(safe-area-inset-bottom,0px);}.pt-safe{padding-top:env(safe-area-inset-top,0px);}main>:first-child{margin-top:0!important;}main>:last-child{margin-bottom:0!important;}}::-webkit-scrollbar{display:none;}</style><script src="https://cdn.tailwindcss.com"></script><script id="tailwind-config">tailwind.config = { darkMode: "class", theme: { extend: { "colors": { "on-primary-fixed": "#00210d", "surface-variant": "#e6e2dc", "inverse-surface": "#31302c", "on-secondary-fixed-variant": "#763316", "inverse-on-surface": "#f4f0ea", "secondary-fixed": "#ffdbce", "tertiary": "#4f6053", "on-primary-fixed-variant": "#00522a", "surface-container-high": "#ece8e1", "tertiary-fixed-dim": "#b9cbbb", "on-secondary-container": "#773316", "secondary-fixed-dim": "#ffb59a", "on-tertiary-container": "#f6fff5", "on-tertiary-fixed-variant": "#3a4b3e", "on-error-container": "#93000a", "surface-container-lowest": "#ffffff", "secondary": "#94492b", "error-container": "#ffdad6", "outline": "#6f7a70", "on-primary": "#ffffff", "outline-variant": "#bfc9be", "on-tertiary-fixed": "#0f1f15", "surface-container": "#f1ede7", "primary-container": "#338351", "primary-fixed-dim": "#87d89d", "inverse-primary": "#87d89d", "primary": "#126a3a", "surface-dim": "#ddd9d3", "tertiary-container": "#67796b", "surface": "#fdf9f2", "error": "#ba1a1a", "surface-container-low": "#f7f3ec", "on-tertiary": "#ffffff", "on-surface-variant": "#3f4940", "surface-tint": "#166c3c", "background": "#fdf9f2", "on-secondary": "#ffffff", "surface-container-highest": "#e6e2dc", "on-background": "#1c1c18", "on-error": "#ffffff", "primary-fixed": "#a2f5b8", "on-surface": "#1c1c18", "on-primary-container": "#f6fff4", "secondary-container": "#fd9e79", "surface-bright": "#fdf9f2", "tertiary-fixed": "#d4e7d7", "on-secondary-fixed": "#370e00" }, "borderRadius": { "DEFAULT": "0.25rem", "lg": "0.5rem", "xl": "0.75rem", "full": "9999px" }, "spacing": { "space-lg": "1.25rem", "gutter-mobile": "0.75rem", "space-xl": "1.75rem", "space-sm": "0.5rem", "space-md": "1rem", "margin-mobile": "1rem", "gutter": "1rem", "space-xs": "0.25rem", "margin": "1.25rem" }, "fontFamily": { "headline-xl-mobile": ["Bricolage Grotesque"], "headline-lg": ["Bricolage Grotesque"], "headline-md": ["Bricolage Grotesque"], "label-md": ["DM Sans"], "label-sm": ["DM Sans"], "headline-xl": ["Bricolage Grotesque"], "body-sm": ["DM Sans"], "body-lg": ["DM Sans"], "headline-sm": ["Bricolage Grotesque"], "body-md": ["DM Sans"], "label-lg": ["DM Sans"] }, "fontSize": { "headline-xl-mobile": ["28px", { "lineHeight": "36px", "fontWeight": "700" }], "headline-lg": ["24px", { "lineHeight": "32px", "fontWeight": "700" }], "headline-md": ["20px", { "lineHeight": "28px", "fontWeight": "600" }], "label-md": ["12px", { "lineHeight": "16px", "letterSpacing": "0.02em", "fontWeight": "600" }], "label-sm": ["11px", { "lineHeight": "14px", "letterSpacing": "0.03em", "fontWeight": "600" }], "headline-xl": ["36px", { "lineHeight": "44px", "fontWeight": "700" }], "body-sm": ["12px", { "lineHeight": "16px", "fontWeight": "400" }], "body-lg": ["16px", { "lineHeight": "24px", "fontWeight": "400" }], "headline-sm": ["18px", { "lineHeight": "24px", "fontWeight": "600" }], "body-md": ["14px", { "lineHeight": "20px", "fontWeight": "400" }], "label-lg": ["14px", { "lineHeight": "20px", "fontWeight": "600" }] } } } };</script><style>
+    body {
+      min-height: max(884px, 100dvh);
+    }
+  </style>
+  </head><body class="bg-background text-on-surface font-body-md text-body-md flex flex-col min-h-screen"><header class="fixed top-0 w-full z-50 pt-safe bg-surface/85 backdrop-blur-xl shadow-[0_1px_8px_rgba(43,42,38,0.04)]"><div class="h-16 px-margin-mobile flex items-center justify-between"><div class="flex items-center gap-space-xs"><button aria-label="Go back" class="w-11 h-11 -ml-1.5 flex items-center justify-center rounded-full text-on-surface hover:bg-surface-container active:scale-95 transition-all" onclick="history.back()"><span class="material-symbols-outlined text-[24px]">arrow_back</span></button><h1 class="font-headline-sm text-headline-sm text-on-surface tracking-tight leading-none">Roster Review</h1></div><div class="flex items-center gap-space-xs"><div class="w-8 h-8 rounded-full bg-primary flex items-center justify-center shadow-[0_2px_6px_rgba(18,106,58,0.2)]"><span class="material-symbols-outlined text-on-primary text-[18px]">person</span></div></div></div></header><main class="flex flex-col relative w-full pt-16 pb-safe bg-surface min-h-screen"><div class="flex flex-col w-full px-margin-mobile pb-space-xl">
+<!-- Top Session Summary Card (Notebook Page Header) -->
+<section class="mt-space-sm w-full bg-surface-container-lowest rounded-[20px] p-space-md shadow-[0_4px_16px_rgba(43,42,38,0.05),0_1px_2px_rgba(43,42,38,0.03)] flex flex-col gap-space-sm">
+<div class="flex items-start justify-between">
+<div class="flex flex-col">
+<span class="font-label-sm text-label-sm uppercase tracking-wider text-outline">Section Attendance</span>
+<h2 class="font-headline-md text-headline-md text-on-surface">Grade 10 — Sampaguita</h2>
+</div>
+<span class="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-tertiary-fixed text-on-tertiary-fixed font-label-sm text-label-sm">
+<span class="w-2 h-2 rounded-full bg-primary animate-pulse"></span>
+        Closed 8:00 AM
+      </span>
+</div>
+<div class="flex items-center gap-1.5 text-on-surface-variant font-body-sm text-body-sm">
+<span class="material-symbols-outlined text-[16px] text-outline">calendar_today</span>
+<span>Thursday, Oct 24</span>
+<span class="text-outline-variant">•</span>
+<span class="material-symbols-outlined text-[16px] text-outline">schedule</span>
+<span>7:30 AM – 8:00 AM</span>
+</div>
+<div class="bg-surface-container-low rounded-xl p-space-sm flex flex-col gap-space-xs mt-1">
+<div class="flex items-baseline justify-between">
+<div class="flex items-baseline gap-1.5">
+<span class="font-headline-md text-headline-md text-on-surface font-bold">29</span>
+<span class="font-body-md text-body-md text-on-surface-variant">of 32 present</span>
+</div>
+<div class="flex items-center gap-1 font-label-sm text-label-sm text-secondary">
+<span class="material-symbols-outlined text-[15px]">flag</span>
+<span>3 need review</span>
+</div>
+</div>
+<!-- Organic Leaf Progress Bar -->
+<div class="w-full h-2.5 bg-surface-variant rounded-full overflow-hidden flex">
+<div class="bg-primary h-full rounded-full transition-all duration-500" style="width: 90.6%"></div>
+</div>
+<div class="flex justify-between items-center font-label-sm text-label-sm text-outline pt-0.5">
+<span>90.6% attendance rate</span>
+<span>Target: 95%</span>
+</div>
+</div>
+</section>
+<!-- Filter Segmented Bar -->
+<nav aria-label="Roster Filter" class="mt-space-md w-full overflow-x-auto no-scrollbar flex items-center gap-space-xs py-0.5">
+<button class="px-3.5 py-1.5 rounded-full bg-surface-container-highest text-on-surface-variant font-label-md text-label-md whitespace-nowrap active:scale-95 transition-transform flex items-center gap-1.5" type="button">
+<span>All</span>
+<span class="px-1.5 py-0.2 rounded-full bg-surface-variant text-[11px]">32</span>
+</button>
+<button class="px-3.5 py-1.5 rounded-full bg-surface-container-highest text-on-surface-variant font-label-md text-label-md whitespace-nowrap active:scale-95 transition-transform flex items-center gap-1.5" type="button">
+<span>Present</span>
+<span class="px-1.5 py-0.2 rounded-full bg-surface-variant text-[11px]">29</span>
+</button>
+<button class="px-3.5 py-1.5 rounded-full bg-surface-container-highest text-on-surface-variant font-label-md text-label-md whitespace-nowrap active:scale-95 transition-transform flex items-center gap-1.5" type="button">
+<span>Absent</span>
+<span class="px-1.5 py-0.2 rounded-full bg-surface-variant text-[11px]">3</span>
+</button>
+<button class="px-3.5 py-1.5 rounded-full bg-primary text-on-primary font-label-md text-label-md whitespace-nowrap shadow-[0_2px_8px_rgba(18,106,58,0.25)] flex items-center gap-1.5" type="button">
+<span class="w-1.5 h-1.5 rounded-full bg-primary-fixed"></span>
+<span>Needs review</span>
+<span class="px-1.5 py-0.2 rounded-full bg-primary-container text-on-primary text-[11px]">3</span>
+</button>
+</nav>
+<!-- Student Roster List -->
+<section class="mt-space-sm flex flex-col gap-space-xs w-full">
+<!-- Row 1: Juan De La Cruz (Verified) -->
+<article class="w-full bg-surface-container-lowest rounded-xl p-space-sm flex items-center justify-between shadow-[0_2px_8px_rgba(43,42,38,0.03)] hover:bg-surface-container-low transition-colors">
+<div class="flex items-center gap-space-sm min-w-0">
+<div class="w-10 h-10 rounded-full bg-tertiary-fixed text-on-tertiary-fixed flex items-center justify-center font-headline-sm text-headline-sm font-semibold shrink-0">
+          JD
+        </div>
+<div class="flex flex-col min-w-0">
+<div class="flex items-center gap-2">
+<h3 class="font-label-lg text-label-lg text-on-surface truncate">Juan De La Cruz</h3>
+<span class="px-1.5 py-0.5 rounded-full bg-surface-container text-outline font-label-sm text-label-sm">QR</span>
+</div>
+<span class="font-body-sm text-body-sm text-outline truncate">LRN: 1092837482 • 7:42 AM</span>
+</div>
+</div>
+<span class="shrink-0 px-2.5 py-1 rounded-full bg-tertiary-fixed text-on-tertiary-fixed font-label-sm text-label-sm flex items-center gap-1">
+<span class="material-symbols-outlined text-[14px] text-primary">check_circle</span>
+        Verified
+      </span>
+</article>
+<!-- Row 2: Beatrice Gomez (Flagged - Currently Inspected) -->
+<article class="w-full bg-surface-container-low rounded-xl p-space-sm flex items-center justify-between shadow-[0_0_0_2px_rgba(253,158,121,0.5)] transition-all">
+<div class="flex items-center gap-space-sm min-w-0">
+<div class="w-10 h-10 rounded-full bg-secondary-fixed text-on-secondary-fixed flex items-center justify-center font-headline-sm text-headline-sm font-semibold shrink-0">
+          BG
+        </div>
+<div class="flex flex-col min-w-0">
+<div class="flex items-center gap-2">
+<h3 class="font-label-lg text-label-lg text-on-surface font-bold truncate">Beatrice Gomez</h3>
+<span class="px-1.5 py-0.5 rounded-full bg-surface-container-highest text-on-surface-variant font-label-sm text-label-sm">QR</span>
+</div>
+<span class="font-body-sm text-body-sm text-secondary font-medium truncate">LRN: 1083749201 • 7:45 AM</span>
+</div>
+</div>
+<div class="flex flex-col items-end shrink-0 gap-0.5">
+<span class="px-2.5 py-1 rounded-full bg-secondary-fixed text-on-secondary-fixed-variant font-label-sm text-label-sm flex items-center gap-1">
+<span class="material-symbols-outlined text-[14px]">near_me</span>
+          Unverified (110m)
+        </span>
+</div>
+</article>
+<!-- Row 3: Carlos Mendoza (Manual Approval) -->
+<article class="w-full bg-surface-container-lowest rounded-xl p-space-sm flex items-center justify-between shadow-[0_2px_8px_rgba(43,42,38,0.03)] hover:bg-surface-container-low transition-colors">
+<div class="flex items-center gap-space-sm min-w-0">
+<div class="w-10 h-10 rounded-full bg-surface-container-highest text-on-surface-variant flex items-center justify-center font-headline-sm text-headline-sm font-semibold shrink-0">
+          CM
+        </div>
+<div class="flex flex-col min-w-0">
+<div class="flex items-center gap-2">
+<h3 class="font-label-lg text-label-lg text-on-surface truncate">Carlos Mendoza</h3>
+<span class="px-1.5 py-0.5 rounded-full bg-surface-variant text-on-surface-variant font-label-sm text-label-sm">Manual</span>
+</div>
+<span class="font-body-sm text-body-sm text-outline truncate">LRN: 1039485721 • 7:51 AM</span>
+</div>
+</div>
+<span class="shrink-0 px-2.5 py-1 rounded-full bg-secondary-fixed-dim/40 text-on-secondary-fixed-variant font-label-sm text-label-sm flex items-center gap-1">
+<span class="material-symbols-outlined text-[14px]">pending</span>
+        Pending
+      </span>
+</article>
+<!-- Row 4: Kyle Tan (Mismatch) -->
+<article class="w-full bg-surface-container-lowest rounded-xl p-space-sm flex items-center justify-between shadow-[0_2px_8px_rgba(43,42,38,0.03)] hover:bg-surface-container-low transition-colors">
+<div class="flex items-center gap-space-sm min-w-0">
+<div class="w-10 h-10 rounded-full bg-secondary-fixed text-on-secondary-fixed flex items-center justify-center font-headline-sm text-headline-sm font-semibold shrink-0">
+          KT
+        </div>
+<div class="flex flex-col min-w-0">
+<div class="flex items-center gap-2">
+<h3 class="font-label-lg text-label-lg text-on-surface truncate">Kyle Tan</h3>
+<span class="px-1.5 py-0.5 rounded-full bg-surface-container text-outline font-label-sm text-label-sm">QR</span>
+</div>
+<span class="font-body-sm text-body-sm text-outline truncate">LRN: 1049283749 • 7:58 AM</span>
+</div>
+</div>
+<span class="shrink-0 px-2.5 py-1 rounded-full bg-secondary-fixed text-on-secondary-fixed-variant font-label-sm text-label-sm flex items-center gap-1">
+<span class="material-symbols-outlined text-[14px]">location_off</span>
+        340m away
+      </span>
+</article>
+<!-- Row 5: Mark Soriano (High Risk / Proxy alert) -->
+<article class="w-full bg-surface-container-lowest rounded-xl p-space-sm flex items-center justify-between shadow-[0_2px_8px_rgba(43,42,38,0.03)] hover:bg-surface-container-low transition-colors">
+<div class="flex items-center gap-space-sm min-w-0">
+<div class="w-10 h-10 rounded-full bg-error-container text-on-error-container flex items-center justify-center font-headline-sm text-headline-sm font-semibold shrink-0">
+          MS
+        </div>
+<div class="flex flex-col min-w-0">
+<div class="flex items-center gap-2">
+<h3 class="font-label-lg text-label-lg text-on-surface truncate">Mark Soriano</h3>
+<span class="px-1.5 py-0.5 rounded-full bg-surface-container text-outline font-label-sm text-label-sm">QR</span>
+</div>
+<span class="font-body-sm text-body-sm text-error truncate">LRN: 1094837265 • 7:59 AM</span>
+</div>
+</div>
+<span class="shrink-0 px-2.5 py-1 rounded-full bg-error-container text-on-error-container font-label-sm text-label-sm flex items-center gap-1">
+<span class="material-symbols-outlined text-[14px]">report</span>
+        High risk (1.2km)
+      </span>
+</article>
+<!-- Row 6: Angela Perez (Absent) -->
+<article class="w-full bg-surface-container-lowest rounded-xl p-space-sm flex items-center justify-between shadow-[0_2px_8px_rgba(43,42,38,0.03)] opacity-70">
+<div class="flex items-center gap-space-sm min-w-0">
+<div class="w-10 h-10 rounded-full bg-surface-variant text-on-surface-variant flex items-center justify-center font-headline-sm text-headline-sm font-medium shrink-0">
+          AP
+        </div>
+<div class="flex flex-col min-w-0">
+<div class="flex items-center gap-2">
+<h3 class="font-label-lg text-label-lg text-on-surface truncate">Angela Perez</h3>
+<span class="px-1.5 py-0.5 rounded-full bg-surface-container text-outline font-label-sm text-label-sm">-</span>
+</div>
+<span class="font-body-sm text-body-sm text-outline truncate">LRN: 1029384756 • No check-in</span>
+</div>
+</div>
+<span class="shrink-0 px-2.5 py-1 rounded-full bg-surface-container-highest text-on-surface-variant font-label-sm text-label-sm">
+        Absent
+      </span>
+</article>
+</section>
+<!-- Interactive Review Card (Stationery Grounded Sheet for Beatrice Gomez) -->
+<section class="mt-space-md w-full bg-surface-container-lowest rounded-[20px] p-space-md shadow-[0_12px_32px_rgba(43,42,38,0.08),0_2px_6px_rgba(43,42,38,0.04)] flex flex-col gap-space-sm relative overflow-hidden">
+<!-- Top Decorative Tab Indicator -->
+<div class="w-10 h-1 bg-surface-variant rounded-full mx-auto mb-1"></div>
+<div class="flex items-center justify-between">
+<div class="flex items-center gap-2">
+<span class="w-2.5 h-2.5 rounded-full bg-secondary"></span>
+<h3 class="font-headline-sm text-headline-sm text-on-surface">Review Beatrice Gomez</h3>
+</div>
+<span class="font-label-sm text-label-sm text-outline">Case 1 of 3</span>
+</div>
+<!-- Snapshot & Quick Audit Card -->
+<div class="w-full bg-surface-container-low rounded-xl p-space-sm flex items-start gap-space-sm">
+<img class="w-20 h-24 rounded-[16px] object-cover shrink-0 shadow-[0_2px_6px_rgba(43,42,38,0.08)]" data-alt="A bright high school classroom selfie photo of Beatrice, a cheerful student in a white uniform smiling naturally under warm classroom morning sunlight, captured directly via mobile camera." src="https://lh3.googleusercontent.com/aida-public/AB6AXuAqsxe8u7sW0iw31Lh3oeWIkeOOGt7yTPzYp2BItyCB6jRVlSSjfgu31s0zAj2i5_7opgy_WlUovTBELpnBnzHI_Q1M7QmN1AEiC4Zi5nuNoL4ppYOr3klbNOBqv2Tupx8buf0G3c-0UAifQ7w-ePRbKgOFnLOnLSuwurmcTjD6XoaS8PStDNM4azBEIqD0jjNHcGhZpS_M7F1Wjcl_1vl95hwEbv1vg5rnISiEYvuSmmHefdmNtVlUqA">
+<div class="flex flex-col gap-1 min-w-0 py-0.5">
+<span class="font-label-sm text-label-sm uppercase tracking-wider text-secondary font-semibold">Flag Reason</span>
+<p class="font-body-sm text-body-sm text-on-surface leading-snug">
+          Location was 110 meters away from Room 304 anchor. Wi-Fi signal was weak.
+        </p>
+<div class="flex flex-col gap-0.5 mt-1 font-body-sm text-[11px] text-outline">
+<span>Timestamp: 7:45:12 AM</span>
+<span>Device: Samsung Galaxy A12 (School Portal v2.4)</span>
+</div>
+</div>
+</div>
+<!-- Map Geolocation Visual Snippet -->
+<div class="w-full h-24 rounded-xl overflow-hidden relative shadow-[0_1px_4px_rgba(43,42,38,0.06)]" data-location="Manila High School Building, Room 304">
+<div class="absolute inset-0 bg-surface-container-high flex items-center justify-center">
+<div class="flex items-center gap-2 px-3 py-1.5 rounded-full bg-surface-container-lowest/90 backdrop-blur-sm text-on-surface font-label-sm text-label-sm shadow-sm">
+<span class="material-symbols-outlined text-[16px] text-secondary">distance</span>
+<span>Pinned at Covered Court (110m away)</span>
+</div>
+</div>
+</div>
+<!-- Resolution Note -->
+<p class="font-body-sm text-body-sm text-on-surface-variant italic px-1">
+      "Beatrice reported submitting scan from hallway staircase while waiting for room opening."
+    </p>
+<!-- Action Buttons -->
+<div class="grid grid-cols-2 gap-space-sm mt-1">
+<button class="w-full py-3 px-space-md rounded-full bg-surface-container-lowest text-error font-label-lg text-label-lg shadow-sm hover:bg-error-container/20 active:scale-95 transition-all flex items-center justify-center gap-1.5" type="button">
+<span class="material-symbols-outlined text-[18px]">close</span>
+        Reject
+      </button>
+<button class="w-full py-3 px-space-md rounded-full bg-primary text-on-primary font-label-lg text-label-lg shadow-[0_4px_12px_rgba(63,143,91,0.25)] hover:bg-primary-container active:scale-95 transition-all flex items-center justify-center gap-1.5" type="button">
+<span class="material-symbols-outlined text-[18px]">check</span>
+        Approve check-in
+      </button>
+</div>
+</section>
+<!-- Finalized Batch Session Confirmation Banner -->
+<footer class="mt-space-md w-full p-space-md bg-surface-container-low rounded-2xl flex items-center justify-between">
+<div class="flex items-center gap-space-sm">
+<div class="w-8 h-8 rounded-full bg-tertiary-fixed text-on-tertiary-fixed flex items-center justify-center">
+<span class="material-symbols-outlined text-[18px]">done_all</span>
+</div>
+<div class="flex flex-col">
+<span class="font-label-md text-label-md text-on-surface">Auto-sync with DepEd LIS</span>
+<span class="font-body-sm text-body-sm text-outline">Queued after all 3 items reviewed</span>
+</div>
+</div>
+<button class="px-4 py-2 rounded-full bg-surface-container-highest text-on-surface-variant font-label-sm text-label-sm active:scale-95 transition-transform" type="button">
+      Details
+    </button>
+</footer>
+</div>
+<script>
+  // Micro-interaction for approval card toggle feedback
+  document.addEventListener('DOMContentLoaded', () => {
+    const approveBtn = document.querySelector('button:has(.material-symbols-outlined:contains("check")), button:last-of-type');
+    if (approveBtn) {
+      approveBtn.addEventListener('click', (e) => {
+        const btn = e.currentTarget;
+        btn.innerHTML = '<span class="material-symbols-outlined text-[18px]">check_circle</span> Approved';
+        btn.classList.add('bg-primary-container');
+        setTimeout(() => {
+          btn.innerHTML = '<span class="material-symbols-outlined text-[18px]">check</span> Approve check-in';
+          btn.classList.remove('bg-primary-container');
+        }, 1200);
+      });
+    }
+  });
+</script></main></body></html>

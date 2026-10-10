@@ -1,0 +1,452 @@
+<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover" name="viewport"><meta content="mobile_tab" name="shell-type"><link href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:opsz,wght@12..96,600;700&amp;family=DM+Sans:ital,opsz,wght@0,9..40,400;0,9..40,600;1,9..40,400&amp;family=Material+Symbols+Outlined:opsz,wght,FILL,GRAD@20..48,100..700,0..1,-50..200&amp;display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:wght@100..900&amp;family=DM+Sans:wght@100..900&amp;display=swap" rel="stylesheet"><style>@layer base{html,body{width:100vw;margin:0;padding:0;}body{overscroll-behavior:none;}.pb-safe{padding-bottom:env(safe-area-inset-bottom,0px);}.pt-safe{padding-top:env(safe-area-inset-top,0px);}main>:first-child{margin-top:0!important;}main>:last-child{margin-bottom:0!important;}}::-webkit-scrollbar{display:none;}</style><script src="https://cdn.tailwindcss.com"></script><script id="tailwind-config">tailwind.config = {
+    darkMode: "class",
+    theme: {
+      extend: {
+        "colors": {
+          "surface-container-lowest": "#ffffff",
+          "tertiary": "#4f6053",
+          "on-error-container": "#93000a",
+          "inverse-surface": "#31302c",
+          "on-error": "#ffffff",
+          "outline-variant": "#bfc9be",
+          "surface": "#fdf9f2",
+          "secondary-fixed-dim": "#ffb59a",
+          "primary-fixed": "#a2f5b8",
+          "secondary-fixed": "#ffdbce",
+          "on-primary-container": "#f6fff4",
+          "tertiary-fixed": "#d4e7d7",
+          "on-primary-fixed": "#00210d",
+          "on-tertiary-fixed-variant": "#3a4b3e",
+          "tertiary-container": "#67796b",
+          "surface-container-high": "#ece8e1",
+          "on-surface": "#1c1c18",
+          "surface-tint": "#166c3c",
+          "surface-container": "#f1ede7",
+          "surface-bright": "#fdf9f2",
+          "on-secondary": "#ffffff",
+          "error-container": "#ffdad6",
+          "secondary": "#94492b",
+          "surface-container-highest": "#e6e2dc",
+          "primary-container": "#338351",
+          "on-primary": "#ffffff",
+          "primary": "#126a3a",
+          "on-tertiary-fixed": "#0f1f15",
+          "on-tertiary-container": "#f6fff5",
+          "inverse-on-surface": "#f4f0ea",
+          "secondary-container": "#fd9e79",
+          "surface-container-low": "#f7f3ec",
+          "error": "#ba1a1a",
+          "on-secondary-fixed": "#370e00",
+          "on-surface-variant": "#3f4940",
+          "primary-fixed-dim": "#87d89d",
+          "outline": "#6f7a70",
+          "surface-variant": "#e6e2dc",
+          "on-secondary-fixed-variant": "#763316",
+          "on-secondary-container": "#773316",
+          "inverse-primary": "#87d89d",
+          "on-tertiary": "#ffffff",
+          "on-background": "#1c1c18",
+          "tertiary-fixed-dim": "#b9cbbb",
+          "on-primary-fixed-variant": "#00522a",
+          "surface-dim": "#ddd9d3",
+          "background": "#fdf9f2"
+        },
+        "borderRadius": {
+          "DEFAULT": "0.25rem",
+          "lg": "0.5rem",
+          "xl": "0.75rem",
+          "full": "9999px"
+        },
+        "spacing": {
+          "space-xl": "1.75rem",
+          "gutter-mobile": "0.75rem",
+          "margin-mobile": "1rem",
+          "gutter": "1rem",
+          "space-lg": "1.25rem",
+          "space-xs": "0.25rem",
+          "margin": "1.25rem",
+          "space-md": "1rem",
+          "space-sm": "0.5rem"
+        },
+        "fontFamily": {
+          "headline-xl": ["Bricolage Grotesque"],
+          "body-md": ["DM Sans"],
+          "label-sm": ["DM Sans"],
+          "headline-xl-mobile": ["Bricolage Grotesque"],
+          "label-lg": ["DM Sans"],
+          "headline-md": ["Bricolage Grotesque"],
+          "headline-sm": ["Bricolage Grotesque"],
+          "body-lg": ["DM Sans"],
+          "body-sm": ["DM Sans"],
+          "label-md": ["DM Sans"],
+          "headline-lg": ["Bricolage Grotesque"]
+        },
+        "fontSize": {
+          "headline-xl": ["36px", {"lineHeight": "44px", "fontWeight": "700"}],
+          "body-md": ["14px", {"lineHeight": "20px", "fontWeight": "400"}],
+          "label-sm": ["11px", {"lineHeight": "14px", "letterSpacing": "0.03em", "fontWeight": "600"}],
+          "headline-xl-mobile": ["28px", {"lineHeight": "36px", "fontWeight": "700"}],
+          "label-lg": ["14px", {"lineHeight": "20px", "fontWeight": "600"}],
+          "headline-md": ["20px", {"lineHeight": "28px", "fontWeight": "600"}],
+          "headline-sm": ["18px", {"lineHeight": "24px", "fontWeight": "600"}],
+          "body-lg": ["16px", {"lineHeight": "24px", "fontWeight": "400"}],
+          "body-sm": ["12px", {"lineHeight": "16px", "fontWeight": "400"}],
+          "label-md": ["12px", {"lineHeight": "16px", "letterSpacing": "0.02em", "fontWeight": "600"}],
+          "headline-lg": ["24px", {"lineHeight": "32px", "fontWeight": "700"}]
+        }
+      }
+    }
+  }</script><style>
+    body {
+      min-height: max(884px, 100dvh);
+    }
+  </style>
+  </head><body class="bg-surface font-body-md text-body-md text-on-surface flex flex-col min-h-screen"><header class="fixed top-0 w-full z-50 bg-surface/85 backdrop-blur-xl pt-safe shadow-[0_1px_8px_rgba(43,42,38,0.03)]"><div class="h-16 px-margin flex items-center justify-between"><div class="flex items-center gap-space-sm"><img alt="Tangkay Sprout Logo" class="h-8 w-auto object-contain" src="https://lh3.googleusercontent.com/aida/AEtjO1XFsqiiZ55PamYinSLTWSg5seRjqANB1tf2Q7DndpxiMqbWi6oRiu0Npvp8MCBVjUiCcm8SeeGs7OBYvCzQxFckKQUiW2FAmyVGmSW4ywsVfb6JHIB1KNfPM_HVoqdtPGwHMtpOC6mBGwR5Hsvl3o5SPWQb53rnyUr7_A52S95gnqljupXr3oLaL04oinZKO_3Mur5OPPmicTjO_uIFG4_5vbbX-IjjadzqVK8OWj_tX00qMtGgprlBHVKL"><div class="flex flex-col"><span class="font-headline-sm text-headline-sm text-on-surface leading-tight">Tangkay Scan</span><span class="font-label-sm text-label-sm text-on-surface-variant font-medium">Settings</span></div></div><div class="flex items-center gap-space-xs"><button aria-label="Teacher Profile" class="w-11 h-11 flex items-center justify-center rounded-full hover:bg-surface-container-low transition-colors"><img alt="Profile" class="w-8 h-8 rounded-full object-cover" src="https://lh3.googleusercontent.com/aida-public/AB6AXuAF-5p5SkU9pTA_cIILhfpAmr4Ob593KIR4Cm6xOhf5eOS327k603PuTHpMD7HgCQv2QpRmJGxwSWZBRvsnIhPI6G8yzjVkEkKFvYPbBMEUJ5MFzNNMGHVSeyb46FitnRaIAPZFt2Nu47v26XLEb_uq-g4aYkSIm8d_jzIDIbQ8suHfuCfm3qmg6zMDtCLlVY2a_fSfCI6DDnrze3ehqurxbuf5VdO5CY2vXZChVlaD9rQEwqGCUAk21g"></button></div></div></header><main class="flex flex-col relative w-full pt-16 pb-24 bg-surface min-h-screen"><div class="flex flex-col w-full">
+<!-- Stack Header Bar (In-page room context bar) -->
+<div class="px-margin pt-space-xs pb-space-sm flex items-center justify-between">
+<div class="flex items-center gap-space-sm">
+<button aria-label="Go back to rooms" class="w-10 h-10 rounded-full bg-surface-container flex items-center justify-center text-on-surface hover:bg-surface-container-high transition-transform active:scale-95" type="button">
+<span class="material-symbols-outlined text-[20px]">arrow_back</span>
+</button>
+<div class="flex flex-col">
+<span class="font-label-sm text-label-sm text-tertiary uppercase tracking-wider">Room Setup</span>
+<h1 class="font-headline-sm text-headline-sm text-on-surface font-bold">Room Settings</h1>
+</div>
+</div>
+<button class="px-space-md py-space-xs rounded-full bg-surface-container-low text-primary font-label-lg text-label-lg hover:bg-surface-container transition-colors" id="quickSaveBtn" type="button">
+      Save
+    </button>
+</div>
+<div class="flex flex-col gap-space-md px-margin pb-28">
+<!-- Section 1: General Info Card -->
+<section class="bg-surface-container-lowest rounded-[20px] p-space-md shadow-[0_4px_16px_rgba(43,42,38,0.04)] flex flex-col gap-space-md">
+<div class="flex items-center gap-space-xs">
+<span class="material-symbols-outlined text-primary text-[20px]" style="font-variation-settings: 'FILL' 1;">edit_note</span>
+<h2 class="font-headline-sm text-headline-sm text-on-surface">General Details</h2>
+</div>
+<div class="flex flex-col gap-space-sm">
+<label class="flex flex-col gap-space-xs">
+<span class="font-label-md text-label-md text-on-surface-variant">Room Name</span>
+<div class="bg-surface-container-low rounded-xl px-space-md py-space-sm flex items-center focus-within:bg-surface-container-lowest focus-within:shadow-[0_0_0_2px_#338351] transition-all">
+<input class="w-full bg-transparent font-body-md text-body-md text-on-surface outline-none placeholder:text-outline" id="inputRoomName" placeholder="Enter classroom name" type="text" value="Grade 10 — Sampaguita">
+</div>
+</label>
+<div class="grid grid-cols-2 gap-space-sm">
+<label class="flex flex-col gap-space-xs">
+<span class="font-label-md text-label-md text-on-surface-variant">Section Code</span>
+<div class="bg-surface-container-low rounded-xl px-space-md py-space-sm flex items-center">
+<input class="w-full bg-transparent font-body-md text-body-md text-on-surface outline-none" type="text" value="SEC-10A">
+</div>
+</label>
+<label class="flex flex-col gap-space-xs">
+<span class="font-label-md text-label-md text-on-surface-variant">Academic Term</span>
+<div class="bg-surface-container-low rounded-xl px-space-md py-space-sm flex items-center justify-between">
+<span class="font-body-md text-body-md text-on-surface truncate">SY 2024–2025</span>
+<span class="material-symbols-outlined text-[18px] text-tertiary">expand_more</span>
+</div>
+</label>
+</div>
+</div>
+</section>
+<!-- Section 2: Attendance Mode -->
+<section class="bg-surface-container-lowest rounded-[20px] p-space-md shadow-[0_4px_16px_rgba(43,42,38,0.04)] flex flex-col gap-space-sm">
+<div class="flex items-center justify-between">
+<div class="flex items-center gap-space-xs">
+<span class="material-symbols-outlined text-primary text-[20px]" style="font-variation-settings: 'FILL' 1;">tune</span>
+<h2 class="font-headline-sm text-headline-sm text-on-surface">Attendance Mode</h2>
+</div>
+<button class="font-label-md text-label-md text-primary font-semibold hover:underline" type="button">
+          Change preset
+        </button>
+</div>
+<div class="bg-surface-container-low rounded-xl p-space-sm flex items-center justify-between">
+<div class="flex items-center gap-space-sm">
+<div class="w-10 h-10 rounded-full bg-primary-fixed flex items-center justify-center text-on-primary-fixed">
+<span class="material-symbols-outlined text-[20px]">balance</span>
+</div>
+<div class="flex flex-col">
+<div class="flex items-center gap-space-xs">
+<span class="font-headline-sm text-headline-sm text-on-surface">Balanced</span>
+<span class="px-space-xs py-0.5 rounded-full bg-primary-fixed text-on-primary-fixed font-label-sm text-label-sm">Active</span>
+</div>
+<span class="font-body-sm text-body-sm text-on-surface-variant">Scans QR badges, GPS safety ring enabled</span>
+</div>
+</div>
+<span class="material-symbols-outlined text-outline text-[20px]">chevron_right</span>
+</div>
+</section>
+<!-- Section 3: Location & Geofence -->
+<section class="bg-surface-container-lowest rounded-[20px] p-space-md shadow-[0_4px_16px_rgba(43,42,38,0.04)] flex flex-col gap-space-md">
+<div class="flex items-center justify-between">
+<div class="flex items-center gap-space-xs">
+<span class="material-symbols-outlined text-primary text-[20px]" style="font-variation-settings: 'FILL' 1;">radar</span>
+<h2 class="font-headline-sm text-headline-sm text-on-surface">Campus Geofence</h2>
+</div>
+<span class="px-space-sm py-0.5 rounded-full bg-tertiary-fixed text-on-tertiary-fixed font-label-md text-label-md" id="radiusPill">
+          80 meters
+        </span>
+</div>
+<div class="flex flex-col gap-space-xs">
+<div class="flex items-center justify-between font-label-sm text-label-sm text-on-surface-variant">
+<span>Tighter (30m)</span>
+<span>Wide Campus (200m)</span>
+</div>
+<input class="w-full accent-primary h-2 bg-surface-container-high rounded-lg cursor-pointer" id="geofenceSlider" max="200" min="30" step="5" type="range" value="80">
+</div>
+<div class="flex items-start gap-space-sm p-space-sm rounded-xl bg-surface-container-low text-on-surface-variant">
+<span class="material-symbols-outlined text-primary text-[18px] mt-0.5">info</span>
+<p class="font-body-sm text-body-sm leading-relaxed">
+          Students must be within school grounds or campus perimeter to check in. GPS verification happens on scan badge submit.
+        </p>
+</div>
+</section>
+<!-- Section 4: Verification Rules -->
+<section class="bg-surface-container-lowest rounded-[20px] p-space-md shadow-[0_4px_16px_rgba(43,42,38,0.04)] flex flex-col gap-space-md">
+<div class="flex items-center gap-space-xs">
+<span class="material-symbols-outlined text-primary text-[20px]" style="font-variation-settings: 'FILL' 1;">verified_user</span>
+<h2 class="font-headline-sm text-headline-sm text-on-surface">Verification Rules</h2>
+</div>
+<!-- Rule 1: Selfie Toggle -->
+<div class="flex items-center justify-between">
+<div class="flex flex-col pr-space-sm">
+<span class="font-headline-sm text-headline-sm text-on-surface">Selfie Verification</span>
+<span class="font-body-sm text-body-sm text-on-surface-variant">Quick face confirmation at time of camera scan</span>
+</div>
+<label class="relative inline-flex items-center cursor-pointer select-none">
+<input class="sr-only peer" id="toggleSelfie" type="checkbox">
+<div class="w-11 h-6 bg-surface-container-highest peer-focus:outline-none rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-surface-container-lowest after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-primary"></div>
+</label>
+</div>
+<div class="flex items-center justify-between">
+<span class="font-label-sm text-label-sm text-tertiary">Current status</span>
+<span class="font-label-md text-label-md text-secondary font-medium" id="selfieStatusText">Optional</span>
+</div>
+<div class="h-[1px] bg-surface-container w-full"></div>
+<!-- Rule 2: Manual Entries Toggle -->
+<div class="flex items-center justify-between">
+<div class="flex flex-col pr-space-sm">
+<span class="font-headline-sm text-headline-sm text-on-surface">Teacher Approval for Manual Entries</span>
+<span class="font-body-sm text-body-sm text-on-surface-variant">Require teacher approval before saving</span>
+</div>
+<label class="relative inline-flex items-center cursor-pointer select-none">
+<input checked="" class="sr-only peer" id="toggleManual" type="checkbox">
+<div class="w-11 h-6 bg-surface-container-highest peer-focus:outline-none rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-surface-container-lowest after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-primary"></div>
+</label>
+</div>
+</section>
+<!-- Section 5: Appearance & Custom Background -->
+<section class="bg-surface-container-lowest rounded-[20px] p-space-md shadow-[0_4px_16px_rgba(43,42,38,0.04)] flex flex-col gap-space-md">
+<div class="flex items-center gap-space-xs">
+<span class="material-symbols-outlined text-primary text-[20px]" style="font-variation-settings: 'FILL' 1;">palette</span>
+<h2 class="font-headline-sm text-headline-sm text-on-surface">Appearance &amp; Header Backdrop</h2>
+</div>
+<!-- Live Preview Card -->
+<div class="flex flex-col gap-space-xs">
+<div class="flex items-center justify-between">
+<span class="font-label-md text-label-md text-on-surface-variant">Live Room Preview</span>
+<span class="font-label-sm text-label-sm text-primary flex items-center gap-0.5">
+<span class="material-symbols-outlined text-[14px]">visibility</span> Updated in real-time
+          </span>
+</div>
+<div class="relative w-full h-44 rounded-2xl overflow-hidden shadow-sm flex flex-col justify-end p-space-md text-white transition-all duration-300" id="previewCardWrapper">
+<!-- Background image layer with dynamic blur -->
+<div class="absolute inset-0 bg-cover bg-center transition-all duration-200" data-alt="Warm rustic natural texture of handmade unbleached craft paper with subtle flecks of botanical straw and faint soft sunlight casting calm stationery shadows" id="previewBgLayer" style="background-image: url('https://lh3.googleusercontent.com/aida-public/AB6AXuDLjQpmAulQnnH_SKQeWON4eKVdbrCZEbdtWdhKthQnhexO3D01QUXb7HD-C-fS82K2qpMp6W-tb8PxSJaQlyV_j_RwlABkztgekqOMt_BbyJP2WMYKIV3RM-3EcXiskMmwSPTv9I8ZwqH-FNTmw94jiRgsaKg396zDCs9cBT_Eb3ccrBNWcZlreYOBUaZth_fOdSTxx-nlXrT3cRZqedmIRrjaLQYhqaU28mIpqlr4KyuMXB1hXuMrSw'); filter: blur(4px);"></div>
+<!-- Scrim overlay layer with dynamic opacity -->
+<div class="absolute inset-0 bg-black/35 transition-all duration-200" id="previewScrimLayer"></div>
+<!-- Preview Content Foreground -->
+<div class="relative z-10 flex flex-col gap-0.5">
+<div class="flex items-center gap-space-xs">
+<span class="px-2 py-0.5 rounded-full bg-white/20 backdrop-blur-md text-white font-label-sm text-label-sm uppercase tracking-wide">SEC-10A</span>
+<span class="flex items-center gap-1 font-label-sm text-label-sm text-white/90">
+<span class="w-1.5 h-1.5 rounded-full bg-primary-fixed"></span> 42 Active Students
+              </span>
+</div>
+<h3 class="font-headline-sm text-headline-sm text-white font-bold leading-tight drop-shadow-sm" id="previewTitle">Grade 10 — Sampaguita</h3>
+<span class="font-body-sm text-body-sm text-white/85">Adviser: Mrs. Tala Santos • Room 304</span>
+</div>
+</div>
+</div>
+<!-- Upload Button -->
+<div class="flex flex-col gap-space-xs">
+<button class="w-full py-space-sm px-space-md rounded-xl bg-surface-container-low hover:bg-surface-container flex items-center justify-center gap-space-sm text-on-surface font-label-lg text-label-lg transition-transform active:scale-[0.98]" id="uploadPhotoBtn" type="button">
+<span class="material-symbols-outlined text-primary text-[20px]">add_photo_alternate</span>
+<span>Upload room photo</span>
+</button>
+<p class="font-body-sm text-body-sm text-on-surface-variant text-center px-space-sm">
+          Use a school-friendly image. Photos are resized and location data is removed.
+        </p>
+</div>
+<!-- Preset Thumbnails Row -->
+<div class="flex flex-col gap-space-xs">
+<span class="font-label-md text-label-md text-on-surface-variant">Presets</span>
+<div class="grid grid-cols-4 gap-space-xs">
+<!-- Preset 1: Paper (Default) -->
+<button class="preset-pill group flex flex-col items-center gap-1 p-1 rounded-xl bg-primary-fixed/30 text-on-surface transition-all" data-preset="paper" type="button">
+<div class="w-full aspect-square rounded-lg bg-cover bg-center overflow-hidden" data-alt="Close up warm textured unbleached rice paper stationery background with organic soft fibres under gentle morning desk lighting" style="background-image: url('https://lh3.googleusercontent.com/aida-public/AB6AXuA1M0t6PWzS8pvxeqiljZdlc08hnMjZ39SX40JTee4VcKJcK1MZr5JyYasAS1Q6AcFa8fz8-tuqf62N_7BwrUA6KZd0uwwbn7UCGTE_RgTHg6542FOFaWxHd8MR3OthA_Gu5XoIbUelo-jhQQvDfuEahq0UnU8lQ4wwjh-l9ZTYcTvgT2esnd95BzjTJxOxjqYEbm6v1ol9Iv5Xl0uOuQGa48mNpooBXHCm6Y5hbiLMz0t_2zHTShf9cA')"></div>
+<span class="font-label-sm text-[10px] text-center leading-tight truncate w-full text-on-surface font-bold">Paper (Default)</span>
+</button>
+<!-- Preset 2: Lush Leaves -->
+<button class="preset-pill group flex flex-col items-center gap-1 p-1 rounded-xl hover:bg-surface-container-low text-on-surface-variant transition-all" data-preset="leaves" type="button">
+<div class="w-full aspect-square rounded-lg bg-cover bg-center overflow-hidden" data-alt="Lush tropical monstera and fiddle leaf fig foliage with dappled green shadows and gentle educational botanical morning light" style="background-image: url('https://lh3.googleusercontent.com/aida-public/AB6AXuDR01IKywHdm23yl7yjOs7LuRN1TIbT9DaKpqLoKv8TbBGoH3lQk-XEvDM1NfLMeHdQtSBklW_yqYq0vtCiLTJFGrTQzNiIYM_pG0zA2Ndk5j_DuvNq-zLgb-2soNdMq8Xeo9DrUBYYofOS7nrvZlnocnnLu3S4M7U0wAEIrvi_lfteGOl4eOk3iiOfxv-cN0CzDQzEQorWPGrXZx-isUL1odgF422-BPFoPl9wJPcBc45Ximo47NryPQ')"></div>
+<span class="font-label-sm text-[10px] text-center leading-tight truncate w-full">Lush Leaves</span>
+</button>
+<!-- Preset 3: Soft Pastel Chalk -->
+<button class="preset-pill group flex flex-col items-center gap-1 p-1 rounded-xl hover:bg-surface-container-low text-on-surface-variant transition-all" data-preset="chalk" type="button">
+<div class="w-full aspect-square rounded-lg bg-cover bg-center overflow-hidden" data-alt="Clean pastel chalk dusty chalkboard texture with sage green and pale cream smudges from school lessons" style="background-image: url('https://lh3.googleusercontent.com/aida-public/AB6AXuChMX0rkg_vL5-AUWGnedUWas0B6Gt1gptsEh_01EzCYI_YpNbeKw6cVmneru-u1yI-JGHG5GaXmGO7zrLMI9NnN8dLhjJemXd7VBPwyfLq4Tbl0EruF7rChNn_O-Ssu2lCPexmVpd835UIsCH5Mgu4IgrhG54TwBliwiwhbzKSE_iDgbnIbFlzCW1eBVZQ208rafFG_cWKsJTcmqNyjiP25p9cn0zrGRCCwS_sFHvP_NM-VCTjaLeqQQ')"></div>
+<span class="font-label-sm text-[10px] text-center leading-tight truncate w-full">Pastel Chalk</span>
+</button>
+<!-- Preset 4: Classroom Wood -->
+<button class="preset-pill group flex flex-col items-center gap-1 p-1 rounded-xl hover:bg-surface-container-low text-on-surface-variant transition-all" data-preset="wood" type="button">
+<div class="w-full aspect-square rounded-lg bg-cover bg-center overflow-hidden" data-alt="Warm natural golden cedar wooden student desk surface with subtle grain lines and friendly classroom sunlight" style="background-image: url('https://lh3.googleusercontent.com/aida-public/AB6AXuDj3CRxmA9_69L0LJIiGBz9aeU2xXC4-hKV-Mkol3e3PLnoQM9Mb0NPXUDU5hN-rI_yqCQNoOcVk7GzDHXgwOYjE0m4-om89VQHK1aZ9mcCPthWIonCxU6PkvlhCJqUQRK8OBV9pZvLHw8AQuchTdBRX39f2zL8wabxdaUCwnk_6087kAtG3bSuPoG4gbHuhIyMl6DPm2LvHl1HAXIuR2aqlk98oSxZK6xOSOXDA5e90YLVsN0306oOoA')"></div>
+<span class="font-label-sm text-[10px] text-center leading-tight truncate w-full">Class Wood</span>
+</button>
+</div>
+</div>
+<!-- Sliders for Dim & Blur -->
+<div class="flex flex-col gap-space-md pt-space-xs">
+<!-- Scrim Slider -->
+<div class="flex flex-col gap-1.5">
+<div class="flex items-center justify-between">
+<span class="font-label-md text-label-md text-on-surface">Dim (scrim strength)</span>
+<span class="px-space-sm py-0.5 rounded-full bg-surface-container-high font-label-sm text-label-sm text-on-surface" id="scrimValueBadge">35%</span>
+</div>
+<input class="w-full accent-primary h-2 bg-surface-container-high rounded-lg cursor-pointer" id="scrimSlider" max="80" min="0" type="range" value="35">
+</div>
+<!-- Blur Slider -->
+<div class="flex flex-col gap-1.5">
+<div class="flex items-center justify-between">
+<span class="font-label-md text-label-md text-on-surface">Blur</span>
+<span class="px-space-sm py-0.5 rounded-full bg-surface-container-high font-label-sm text-label-sm text-on-surface" id="blurValueBadge">4px</span>
+</div>
+<input class="w-full accent-primary h-2 bg-surface-container-high rounded-lg cursor-pointer" id="blurSlider" max="16" min="0" type="range" value="4">
+</div>
+</div>
+<!-- Text Action: Reset -->
+<div class="flex justify-center pt-space-xs">
+<button class="font-label-md text-label-md text-secondary hover:text-on-secondary-fixed-variant transition-colors flex items-center gap-1" id="resetBgBtn" type="button">
+<span class="material-symbols-outlined text-[16px]">restart_alt</span>
+<span>Reset to default Paper background</span>
+</button>
+</div>
+</section>
+</div>
+<!-- Bottom Sticky Save Bar -->
+<div class="fixed bottom-16 left-0 right-0 z-40 px-margin py-space-sm bg-surface/90 backdrop-blur-md flex items-center justify-center">
+<div class="w-full max-w-md">
+<button class="w-full py-3.5 px-space-lg rounded-full bg-primary text-on-primary font-headline-sm text-headline-sm font-semibold flex items-center justify-center gap-space-sm shadow-[0_4px_16px_rgba(18,106,58,0.3)] hover:opacity-95 active:scale-[0.99] transition-all" id="saveChangesMainBtn" type="button">
+<span class="material-symbols-outlined text-[20px]">check</span>
+<span>Save changes</span>
+</button>
+</div>
+</div>
+<!-- Micro-interaction feedback toast -->
+<div class="fixed top-20 left-1/2 -translate-x-1/2 z-50 bg-inverse-surface text-inverse-on-surface px-space-md py-space-sm rounded-full shadow-lg flex items-center gap-space-xs opacity-0 pointer-events-none transition-all duration-300" id="saveToast">
+<span class="material-symbols-outlined text-primary-fixed text-[18px]">verified</span>
+<span class="font-label-md text-label-md">Settings updated successfully!</span>
+</div>
+</div>
+<script>
+  (function() {
+    // Room Name sync to live preview
+    const inputRoomName = document.getElementById('inputRoomName');
+    const previewTitle = document.getElementById('previewTitle');
+    if (inputRoomName && previewTitle) {
+      inputRoomName.addEventListener('input', (e) => {
+        previewTitle.textContent = e.target.value.trim() || 'Untitled Classroom';
+      });
+    }
+
+    // Geofence slider
+    const geofenceSlider = document.getElementById('geofenceSlider');
+    const radiusPill = document.getElementById('radiusPill');
+    if (geofenceSlider && radiusPill) {
+      geofenceSlider.addEventListener('input', (e) => {
+        radiusPill.textContent = e.target.value + ' meters';
+      });
+    }
+
+    // Selfie toggle text sync
+    const toggleSelfie = document.getElementById('toggleSelfie');
+    const selfieStatusText = document.getElementById('selfieStatusText');
+    if (toggleSelfie && selfieStatusText) {
+      toggleSelfie.addEventListener('change', (e) => {
+        if (e.target.checked) {
+          selfieStatusText.textContent = 'Enforced';
+          selfieStatusText.className = 'font-label-md text-label-md text-primary font-bold';
+        } else {
+          selfieStatusText.textContent = 'Optional';
+          selfieStatusText.className = 'font-label-md text-label-md text-secondary font-medium';
+        }
+      });
+    }
+
+    // Scrim & Blur sliders interactive preview
+    const scrimSlider = document.getElementById('scrimSlider');
+    const scrimValueBadge = document.getElementById('scrimValueBadge');
+    const previewScrimLayer = document.getElementById('previewScrimLayer');
+
+    const blurSlider = document.getElementById('blurSlider');
+    const blurValueBadge = document.getElementById('blurValueBadge');
+    const previewBgLayer = document.getElementById('previewBgLayer');
+
+    if (scrimSlider && scrimValueBadge && previewScrimLayer) {
+      scrimSlider.addEventListener('input', (e) => {
+        const val = e.target.value;
+        scrimValueBadge.textContent = val + '%';
+        previewScrimLayer.style.backgroundColor = `rgba(0, 0, 0, ${val / 100})`;
+      });
+    }
+
+    if (blurSlider && blurValueBadge && previewBgLayer) {
+      blurSlider.addEventListener('input', (e) => {
+        const val = e.target.value;
+        blurValueBadge.textContent = val + 'px';
+        previewBgLayer.style.filter = `blur(${val}px)`;
+      });
+    }
+
+    // Preset switcher visual state
+    const presetButtons = document.querySelectorAll('.preset-pill');
+    presetButtons.forEach(btn => {
+      btn.addEventListener('click', () => {
+        presetButtons.forEach(b => {
+          b.classList.remove('bg-primary-fixed/30', 'text-on-surface', 'font-bold');
+          b.classList.add('text-on-surface-variant');
+        });
+        btn.classList.add('bg-primary-fixed/30', 'text-on-surface', 'font-bold');
+        btn.classList.remove('text-on-surface-variant');
+      });
+    });
+
+    // Reset button
+    const resetBgBtn = document.getElementById('resetBgBtn');
+    if (resetBgBtn && scrimSlider && blurSlider) {
+      resetBgBtn.addEventListener('click', () => {
+        scrimSlider.value = 35;
+        blurSlider.value = 4;
+        scrimSlider.dispatchEvent(new Event('input'));
+        blurSlider.dispatchEvent(new Event('input'));
+        if (presetButtons[0]) presetButtons[0].click();
+      });
+    }
+
+    // Toast notification for save actions
+    const toast = document.getElementById('saveToast');
+    function triggerSaveToast() {
+      if (!toast) return;
+      toast.classList.remove('opacity-0', 'pointer-events-none');
+      toast.classList.add('opacity-100');
+      setTimeout(() => {
+        toast.classList.add('opacity-0', 'pointer-events-none');
+        toast.classList.remove('opacity-100');
+      }, 2200);
+    }
+
+    const saveChangesMainBtn = document.getElementById('saveChangesMainBtn');
+    const quickSaveBtn = document.getElementById('quickSaveBtn');
+    if (saveChangesMainBtn) saveChangesMainBtn.addEventListener('click', triggerSaveToast);
+    if (quickSaveBtn) quickSaveBtn.addEventListener('click', triggerSaveToast);
+  })();
+</script></main><nav class="fixed bottom-0 w-full z-50 pb-safe bg-surface/90 backdrop-blur-xl shadow-[0_-2px_12px_rgba(43,42,38,0.04)]" data-active-classes="bg-primary-fixed text-on-primary-fixed shadow-sm"><div class="flex justify-around items-center h-16 px-margin max-w-md mx-auto"><a class="flex items-center gap-space-xs px-space-md py-space-xs rounded-full text-on-surface-variant font-label-md text-label-md transition-all duration-200 min-h-[44px]" data-path="rooms" href="#"><span class="material-symbols-outlined text-[20px]">meeting_room</span><span>Rooms</span></a><a class="flex items-center gap-space-xs px-space-md py-space-xs rounded-full text-on-surface-variant font-label-md text-label-md transition-all duration-200 min-h-[44px]" data-path="reports" href="#"><span class="material-symbols-outlined text-[20px]">bar_chart</span><span>Reports</span></a><a aria-current="page" class="flex items-center gap-space-xs px-space-md py-space-xs rounded-full font-label-md transition-all duration-200 min-h-[44px] bg-primary-fixed text-on-primary-fixed shadow-sm" data-path="settings" href="#"><span class="material-symbols-outlined text-[20px]">settings</span><span>Settings</span></a></div></nav></body></html>
