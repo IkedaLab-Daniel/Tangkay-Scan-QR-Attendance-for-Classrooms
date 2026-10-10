@@ -156,6 +156,73 @@ services:
 
 ---
 
+## Operations
+
+### PM2 — Production Process Management
+
+Build and start both the API server and the BullMQ worker using [PM2](https://pm2.keymetrics.io/):
+
+```bash
+# Build TypeScript
+npm run build:api
+
+# Start all processes
+cd apps/api
+npx pm2 start ecosystem.config.js
+
+# Monitor
+npx pm2 status
+npx pm2 logs
+
+# Restart / stop
+npx pm2 restart all
+npx pm2 stop all
+```
+
+PM2 spawns two processes:
+
+| Process | Entry | Purpose |
+|---|---|---|
+| `tangkayscan-api` | `dist/index.js` | Express HTTP server (includes retention cron) |
+| `tangkayscan-worker` | `dist/workers/workerEntry.js` | BullMQ email workers only |
+
+### Nginx — Reverse Proxy
+
+Copy the example config and customise `your-domain.com`:
+
+```bash
+sudo cp apps/api/nginx.conf.example /etc/nginx/sites-available/tangkayscan
+sudo ln -s /etc/nginx/sites-available/tangkayscan /etc/nginx/sites-enabled/
+sudo nginx -t && sudo systemctl reload nginx
+```
+
+The config terminates TLS, proxies to `localhost:4000`, and sets `proxy_buffering off` / long timeouts for SSE streams.
+
+### Nightly Backup
+
+`apps/api/scripts/backup.sh` uses `rsync` to mirror the uploads directory to a backup location. Add a crontab entry to run it at 03:00 daily:
+
+```bash
+# Edit crontab
+crontab -e
+
+# Add this line (adjust path):
+0 3 * * * /path/to/apps/api/scripts/backup.sh >> /var/log/tangkayscan-backup.log 2>&1
+```
+
+Environment variables (override as needed):
+
+| Variable | Default |
+|---|---|
+| `UPLOADS_DIR` | `/var/www/tangkayscan/uploads` |
+| `BACKUP_DIR` | `/var/backups/tangkayscan` |
+
+### Retention Cleanup
+
+PII (selfie images, GPS coordinates) is automatically purged from records older than 30 days. The cleanup runs inside the API process daily at **02:00 server time** via `node-cron`. No manual action is needed — it starts automatically with `scheduleRetentionCleanup()` called at startup. The cron is skipped when `NODE_ENV=test`.
+
+---
+
 ## Build Plan
 
 See [`tangkayscan-plan.md`](tangkayscan-plan.md) for the full 15-sub-task MVP build plan.

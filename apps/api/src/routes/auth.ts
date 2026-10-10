@@ -45,23 +45,25 @@ function issueAccessToken(teacherId: string): string {
 
 function issueRefreshToken(teacherId: string): string {
   return jwt.sign(
-    { typ: 'teacher' },
+    { typ: 'teacher', jti: crypto.randomBytes(16).toString('hex') },
     process.env.JWT_REFRESH_SECRET as string,
     { subject: teacherId, expiresIn: '7d' },
   );
 }
 
 function setCookies(res: Response, accessToken: string, refreshToken: string): void {
-  const secure = process.env.NODE_ENV === 'production';
+  const prod = process.env.NODE_ENV === 'production';
+  const sameSite = prod ? 'none' : 'lax';
+  const secure = prod;
   res.cookie(ACCESS_COOKIE, accessToken, {
     httpOnly: true,
-    sameSite: 'strict',
+    sameSite,
     secure,
     maxAge: ACCESS_TTL_MS,
   });
   res.cookie(REFRESH_COOKIE, refreshToken, {
     httpOnly: true,
-    sameSite: 'strict',
+    sameSite,
     secure,
     maxAge: REFRESH_TTL_MS,
     path: '/api/auth/teacher/refresh',
@@ -195,11 +197,11 @@ router.post('/teacher/refresh', async (req: Request, res: Response): Promise<voi
   const teacherId = payload.sub as string;
   const newAccessToken = issueAccessToken(teacherId);
 
-  const secure = process.env.NODE_ENV === 'production';
+  const prod = process.env.NODE_ENV === 'production';
   res.cookie(ACCESS_COOKIE, newAccessToken, {
     httpOnly: true,
-    sameSite: 'strict',
-    secure,
+    sameSite: prod ? 'none' : 'lax',
+    secure: prod,
     maxAge: ACCESS_TTL_MS,
   });
 
@@ -218,18 +220,40 @@ router.post('/logout', async (req: Request, res: Response): Promise<void> => {
   res.json({ ok: true });
 });
 
-// ─── GET /api/auth/me ─────────────────────────────────────────────────────────
+// ─── GET /api/auth/me — works for both teacher and student ────────────────────
 
-router.get('/me', requireAuth('teacher'), async (req: Request, res: Response): Promise<void> => {
-  const teacher = await prisma.teacher.findUnique({
-    where: { id: req.user!.id },
-    select: { id: true, name: true, email: true, plan: true, created_at: true },
-  });
-  if (!teacher) {
-    res.status(404).json({ error: 'Teacher not found' });
+router.get('/me', async (req: Request, res: Response): Promise<void> => {
+  const token: string | undefined = req.cookies?.access_token;
+  if (!token) { res.status(401).json({ error: 'No access token' }); return; }
+
+  let payload: { sub: string; typ: string };
+  try {
+    payload = jwt.verify(token, process.env.JWT_SECRET as string) as { sub: string; typ: string };
+  } catch {
+    res.status(401).json({ error: 'Invalid or expired access token' }); return;
+  }
+
+  if (payload.typ === 'teacher') {
+    const teacher = await prisma.teacher.findUnique({
+      where: { id: payload.sub },
+      select: { id: true, name: true, email: true, plan: true, created_at: true },
+    });
+    if (!teacher) { res.status(404).json({ error: 'Teacher not found' }); return; }
+    res.json({ ...teacher, typ: 'teacher' });
     return;
   }
-  res.json(teacher);
+
+  if (payload.typ === 'student') {
+    const student = await prisma.student.findUnique({
+      where: { id: payload.sub },
+      select: { id: true, name: true, email: true, parent_email: true, consent_status: true },
+    });
+    if (!student) { res.status(404).json({ error: 'Student not found' }); return; }
+    res.json({ ...student, typ: 'student' });
+    return;
+  }
+
+  res.status(403).json({ error: 'Unknown token type' });
 });
 
 export default router;

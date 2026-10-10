@@ -1,6 +1,7 @@
 import { Router, Request, Response } from 'express';
 import { customAlphabet } from 'nanoid';
 import crypto from 'crypto';
+import jwt from 'jsonwebtoken';
 import { z } from 'zod';
 import { PrismaClient } from '@prisma/client';
 import { requireAuth } from '../middleware/auth';
@@ -45,11 +46,11 @@ const patchRoomSchema = z.object({
   anchor_lat: z.number().min(-90).max(90).optional(),
   anchor_lng: z.number().min(-180).max(180).optional(),
   background_type: z.enum(['none', 'preset', 'custom']).optional(),
-  background_preset_id: z.string().optional(),
+  background_preset_id: z.string().nullable().optional(),
   background_image_path: z.string().optional(),
   background_placeholder: z.string().optional(),
   background_dim: z.number().int().min(0).max(100).optional(),
-  background_blur: z.number().int().min(0).max(100).optional(),
+  background_blur: z.number().int().min(0).max(20).optional(),
   background_scrim: z.enum(['light', 'dark']).optional(),
 });
 
@@ -129,9 +130,51 @@ router.get('/', requireAuth('teacher'), async (req: Request, res: Response): Pro
   res.json(rooms);
 });
 
-// ─── GET /api/rooms/:id ───────────────────────────────────────────────────────
+// ─── GET /api/rooms/my-rooms — student-auth; all enrolled rooms ──────────────
 
-router.get('/:id', requireAuth('teacher'), async (req: Request, res: Response): Promise<void> => {
+router.get('/my-rooms', requireAuth('student'), async (req: Request, res: Response): Promise<void> => {
+  const members = await prisma.roomMember.findMany({
+    where: { student_id: req.user!.id },
+    include: { room: true },
+    orderBy: { joined_at: 'desc' },
+  });
+  res.json(members.map((m) => ({ ...m.room, role: m.role, officer_title: m.officer_title })));
+});
+
+// ─── GET /api/rooms/my-officer-rooms — student-auth; rooms where the student is an officer ──
+
+router.get('/my-officer-rooms', requireAuth('student'), async (req: Request, res: Response): Promise<void> => {
+  const members = await prisma.roomMember.findMany({
+    where: { student_id: req.user!.id, role: 'officer' },
+    include: { room: true },
+    orderBy: { joined_at: 'desc' },
+  });
+  res.json(members.map((m) => ({ ...m.room, officer_title: m.officer_title })));
+});
+
+// ─── GET /api/rooms/:id — teacher owner OR any student member ─────────────────
+
+router.get('/:id', async (req: Request, res: Response): Promise<void> => {
+  // Accept both teacher and student tokens
+  const token: string | undefined = (req as Request & { cookies: Record<string, string> }).cookies?.access_token;
+  if (!token) {
+    res.status(401).json({ error: 'No access token' });
+    return;
+  }
+
+  let payload: { sub: string; typ: string };
+  try {
+    payload = jwt.verify(token, process.env.JWT_SECRET as string) as { sub: string; typ: string };
+  } catch {
+    res.status(401).json({ error: 'Invalid or expired access token' });
+    return;
+  }
+
+  if (payload.typ !== 'teacher' && payload.typ !== 'student') {
+    res.status(403).json({ error: 'Forbidden' });
+    return;
+  }
+
   const room = await prisma.room.findUnique({ where: { id: req.params.id } });
 
   if (!room) {
@@ -139,9 +182,20 @@ router.get('/:id', requireAuth('teacher'), async (req: Request, res: Response): 
     return;
   }
 
-  if (room.teacher_id !== req.user!.id) {
-    res.status(403).json({ error: 'Forbidden' });
-    return;
+  if (payload.typ === 'teacher') {
+    if (room.teacher_id !== payload.sub) {
+      res.status(403).json({ error: 'Forbidden' });
+      return;
+    }
+  } else {
+    // student — must be a member of this room
+    const member = await prisma.roomMember.findFirst({
+      where: { student_id: payload.sub, room_id: room.id },
+    });
+    if (!member) {
+      res.status(403).json({ error: 'Forbidden' });
+      return;
+    }
   }
 
   res.json(room);
@@ -287,6 +341,86 @@ router.get('/:id/members', requireAuth('teacher'), async (req: Request, res: Res
   });
 
   res.json(members);
+});
+
+// ─── POST /api/rooms/:id/static-qr/regenerate ────────────────────────────────
+
+router.post('/:id/static-qr/regenerate', requireAuth('teacher'), async (req: Request, res: Response): Promise<void> => {
+  const room = await prisma.room.findUnique({ where: { id: req.params.id } });
+
+  if (!room) {
+    res.status(404).json({ error: 'Room not found' });
+    return;
+  }
+
+  if (room.teacher_id !== req.user!.id) {
+    res.status(403).json({ error: 'Forbidden' });
+    return;
+  }
+
+  const staticQrToken = jwt.sign(
+    { typ: 'static_qr', roomId: room.id },
+    process.env.JWT_SECRET as string,
+    // No expiry — valid until regenerated
+  );
+
+  const updated = await prisma.room.update({
+    where: { id: room.id },
+    data: { static_qr_token: staticQrToken },
+  });
+
+  res.json({ staticQrToken, roomId: updated.id, roomName: updated.name });
+});
+
+// ─── GET /api/rooms/:id/static-qr ────────────────────────────────────────────
+
+router.get('/:id/static-qr', requireAuth('teacher'), async (req: Request, res: Response): Promise<void> => {
+  const room = await prisma.room.findUnique({ where: { id: req.params.id } });
+
+  if (!room) {
+    res.status(404).json({ error: 'Room not found' });
+    return;
+  }
+
+  if (room.teacher_id !== req.user!.id) {
+    res.status(403).json({ error: 'Forbidden' });
+    return;
+  }
+
+  if (!room.static_qr_token) {
+    res.status(404).json({ error: 'No static QR token generated yet' });
+    return;
+  }
+
+  res.json({ staticQrToken: room.static_qr_token, roomId: room.id, roomName: room.name });
+});
+
+// ─── POST /api/rooms/:id/regenerate-invite ────────────────────────────────────
+
+router.post('/:id/regenerate-invite', requireAuth('teacher'), async (req: Request, res: Response): Promise<void> => {
+  const room = await prisma.room.findFirst({ where: { id: req.params.id, teacher_id: req.user!.id } });
+  if (!room) {
+    res.status(403).json({ message: 'Forbidden' });
+    return;
+  }
+  const newInviteCode = nanoid();
+  const updated = await prisma.room.update({
+    where: { id: room.id },
+    data: { invite_code: newInviteCode },
+  });
+  res.json(updated);
+});
+
+// ─── DELETE /api/rooms/:id ────────────────────────────────────────────────────
+
+router.delete('/:id', requireAuth('teacher'), async (req: Request, res: Response): Promise<void> => {
+  const room = await prisma.room.findFirst({ where: { id: req.params.id, teacher_id: req.user!.id } });
+  if (!room) {
+    res.status(403).json({ message: 'Forbidden' });
+    return;
+  }
+  await prisma.room.delete({ where: { id: room.id } });
+  res.json({ message: 'Room deleted' });
 });
 
 // ─── Mount sub-routers ────────────────────────────────────────────────────────
