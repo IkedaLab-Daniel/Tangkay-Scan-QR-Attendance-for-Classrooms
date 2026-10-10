@@ -9,7 +9,7 @@ const prisma = new PrismaClient();
 // ─── Schemas ──────────────────────────────────────────────────────────────────
 
 const assignOfficerSchema = z.object({
-  memberId: z.string().uuid(),
+  memberId: z.string().min(1),
   officerTitle: z.string().min(1).max(50),
 });
 
