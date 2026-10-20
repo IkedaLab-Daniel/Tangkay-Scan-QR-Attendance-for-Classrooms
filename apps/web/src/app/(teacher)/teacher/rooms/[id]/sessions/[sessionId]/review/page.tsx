@@ -279,7 +279,7 @@ function ReviewContent() {
         .get<AttendanceSession>(`/api/rooms/${roomId}/sessions/${sessionId}`)
         .catch(() => null),
       api
-        .get<{ data: RecordWithStudent[] }>(`/api/sessions/${sessionId}/records?limit=100`)
+        .get<{ data: RecordWithStudent[]; pagination: unknown }>(`/api/sessions/${sessionId}/records?limit=100`)
         .catch(() => ({ data: [] })),
     ])
       .then(([s, r]) => {

@@ -60,11 +60,11 @@ function SessionDetailContent() {
 
   useEffect(() => {
     Promise.all([
-      api.get<AttendanceSession>(`/api/rooms/${roomId}/sessions/${sessionId}`).catch(() => null),
-      api.get<{ records: AttendanceRecord[] }>(`/api/rooms/${roomId}/sessions/${sessionId}/records`).catch(() => ({ records: [] })),
+      api.get<AttendanceSession>(`/api/sessions/${sessionId}`).catch(() => null),
+      api.get<{ data: AttendanceRecord[]; pagination: unknown }>(`/api/sessions/${sessionId}/records`).catch(() => ({ data: [] })),
     ]).then(([s, r]) => {
       setSession(s);
-      setRecords(r.records);
+      setRecords(r.data ?? []);
     }).finally(() => setLoading(false));
   }, [roomId, sessionId]);
 

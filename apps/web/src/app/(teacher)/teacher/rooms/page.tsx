@@ -77,7 +77,7 @@ function RoomsContent() {
       {/* Override layout header with our custom one */}
       <PageHeader title="Tangkay Scan" subtitle="Rooms" action={avatarAction} />
 
-      <div className="flex flex-col px-margin pt-20 pb-32 gap-space-lg">
+      <div className="flex flex-col px-margin pt-5 pb-32 gap-space-lg">
         {/* Greeting section */}
         <div className="flex items-start justify-between pt-space-md">
           <div className="flex flex-col">

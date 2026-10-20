@@ -100,8 +100,8 @@ function ManualHistoryContent() {
   useEffect(() => {
     if (!sessionId) return;
     api
-      .get<{ data: ManualRecord[] }>(`/api/sessions/${sessionId}/records/manual`)
-      .then((res) => setRecords(res.data ?? []))
+      .get<ManualRecord[]>(`/api/sessions/${sessionId}/records/manual`)
+      .then((res) => setRecords(Array.isArray(res) ? res : []))
       .catch(() => setRecords([]))
       .finally(() => setLoading(false));
   }, [sessionId]);

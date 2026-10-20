@@ -181,11 +181,11 @@ function RoomDetailContent() {
     Promise.all([
       api.get<Room>(`/api/rooms/${id}`).catch(() => null),
       api.get<RoomMember[]>(`/api/rooms/${id}/members`).catch(() => []),
-      api.get<AttendanceSession[]>(`/api/rooms/${id}/sessions`).catch(() => []),
+      api.get<{ data: AttendanceSession[] }>(`/api/rooms/${id}/sessions`).catch(() => ({ data: [] })),
     ]).then(([roomData, memberData, sessionData]) => {
       setRoom(roomData);
       setMembers(Array.isArray(memberData) ? memberData : []);
-      setSessions(Array.isArray(sessionData) ? sessionData : []);
+      setSessions(sessionData.data ?? []);
     }).finally(() => setLoading(false));
   }, [id]);
 

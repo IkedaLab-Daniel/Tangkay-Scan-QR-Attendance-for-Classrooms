@@ -408,7 +408,7 @@ function ApprovalsContent() {
   const load = useCallback(() => {
     Promise.all([
       api
-        .get<{ data: PendingRecord[] }>(
+        .get<{ data: PendingRecord[]; pagination: unknown }>(
           `/api/sessions/${sessionId}/records?filter=pending_approval`,
         )
         .catch(() => ({ data: [] })),
