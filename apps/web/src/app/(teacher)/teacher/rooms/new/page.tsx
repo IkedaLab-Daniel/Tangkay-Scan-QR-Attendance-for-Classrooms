@@ -120,7 +120,7 @@ interface BottomDockProps {
 
 function BottomDock({ step, loading, onBack, onNext }: BottomDockProps) {
   return (
-    <div className="fixed bottom-0 left-0 right-0 p-space-md bg-surface/95 backdrop-blur-md shadow-[0_-8px_24px_rgba(43,42,38,0.06)] z-40">
+    <div className="fixed bottom-0 left-0 right-0 p-space-md bg-surface/95 backdrop-blur-md shadow-[0_-8px_24px_rgba(43,42,38,0.06)] z-[100]">
       <div className="max-w-md mx-auto flex items-center gap-space-sm">
         {step > 1 && (
           <button
@@ -626,13 +626,13 @@ function NewRoomContent() {
         ? `${form.roomName} — ${form.subject}`
         : form.roomName;
 
-      const data = await api.post<{ room: { id: string } }>('/api/rooms', {
+      const data = await api.post<{ id: string }>('/api/rooms', {
         name: combinedName,
         attendance_mode: form.mode,
       });
 
       toast('Room created!', 'success');
-      router.push(`/teacher/rooms/${data.room.id}`);
+      router.push(`/teacher/rooms/${data.id}`);
     } catch {
       toast('Failed to create room. Please try again.', 'error');
     } finally {
@@ -668,7 +668,7 @@ function NewRoomContent() {
       </header>
 
       {/* Main content */}
-      <div className="flex flex-col pt-16 pb-32">
+      <div className="flex flex-col pt-5 pb-24">
         {/* Step indicator strip */}
         <StepIndicator step={step} />
 

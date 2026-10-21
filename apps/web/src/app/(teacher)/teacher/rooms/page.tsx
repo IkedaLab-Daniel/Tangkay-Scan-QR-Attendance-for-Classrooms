@@ -156,7 +156,7 @@ function RoomsContent() {
           size="lg"
           className="pointer-events-auto shadow-lg"
           icon={<span className="material-symbols-outlined text-[20px]">add</span>}
-          onClick={() => router.push('/rooms/new')}
+          onClick={() => router.push('/teacher/rooms/new')}
         >
           New room
         </Button>

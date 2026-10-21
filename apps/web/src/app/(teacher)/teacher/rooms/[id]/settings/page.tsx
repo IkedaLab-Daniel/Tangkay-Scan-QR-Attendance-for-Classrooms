@@ -307,7 +307,7 @@ function RoomSettingsContent() {
     setDeleting(true);
     try {
       await api.delete(`/api/rooms/${id}`);
-      router.replace('/rooms');
+      router.replace('/teacher/rooms');
     } catch {
       toast('Failed to delete room', 'error');
       setDeleting(false);
@@ -470,7 +470,7 @@ function RoomSettingsContent() {
               </span>
               <button
                 type="button"
-                onClick={() => router.push(`/rooms/${id}?tab=settings&mode=change`)}
+                onClick={() => router.push(`/teacher/rooms/${id}?tab=settings&mode=change`)}
                 className="font-label-md text-label-md text-primary hover:underline"
               >
                 Change mode

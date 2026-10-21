@@ -448,7 +448,7 @@ function RoomDetailContent() {
           fullWidth
           size="lg"
           icon={<span className="material-symbols-outlined text-[22px]">qr_code_scanner</span>}
-          onClick={() => router.push(`/teacher/rooms/${id}/session/start`)}
+          onClick={() => router.push(`/officer/session/${id}/start`)}
         >
           Start session
         </Button>
@@ -466,7 +466,7 @@ function RoomDetailContent() {
             Edit room
           </button>
           <button
-            onClick={() => { setMenuOpen(false); router.push(`/teacher/rooms/${id}/session/start`); }}
+            onClick={() => { setMenuOpen(false); router.push(`/officer/session/${id}/start`); }}
             className="flex items-center gap-3 w-full py-3.5 rounded-xl text-on-surface
                        hover:bg-surface-container transition-colors font-label-lg text-[14px]"
           >

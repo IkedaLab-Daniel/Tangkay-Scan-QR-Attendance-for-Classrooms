@@ -37,7 +37,7 @@ function PendingApprovalsBanner({ sessions }: { sessions: RecentSession[] }) {
             key={session.id}
             onClick={() =>
               router.push(
-                `/rooms/${session.room.id}/sessions/${session.id}/approvals`,
+                `/teacher/rooms/${session.room.id}/sessions/${session.id}/approvals`,
               )
             }
             className="w-full bg-surface-container-lowest rounded-2xl p-4 shadow-sm
@@ -117,7 +117,7 @@ function SessionRow({ session }: { session: RecentSession }) {
   const router = useRouter();
 
   function handleClick() {
-    router.push(`/rooms/${session.room.id}/sessions/${session.id}/review`);
+    router.push(`/teacher/rooms/${session.room.id}/sessions/${session.id}/review`);
   }
 
   return (

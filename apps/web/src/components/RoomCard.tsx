@@ -47,12 +47,12 @@ export function RoomCard({ room, index, onDelete, onStartSession }: RoomCardProp
   const isActive = room.status === 'active';
 
   function handleCardClick() {
-    router.push(`/rooms/${room.id}`);
+    router.push(`/teacher/rooms/${room.id}`);
   }
 
   function handleQrClick(e: React.MouseEvent) {
     e.stopPropagation();
-    router.push(`/rooms/${room.id}/session/start`);
+    router.push(`/officer/session/${room.id}/start`);
   }
 
   function handleMenuClick(e: React.MouseEvent) {
@@ -144,7 +144,7 @@ export function RoomCard({ room, index, onDelete, onStartSession }: RoomCardProp
       <BottomSheet open={menuOpen} onClose={() => setMenuOpen(false)} title={room.name}>
         <div className="flex flex-col px-5 pb-6 gap-1">
           <button
-            onClick={() => { setMenuOpen(false); router.push(`/rooms/${room.id}`); }}
+            onClick={() => { setMenuOpen(false); router.push(`/teacher/rooms/${room.id}`); }}
             className="flex items-center gap-3 w-full py-3.5 rounded-xl text-on-surface
                        hover:bg-surface-container transition-colors font-label-lg text-[14px]"
           >
@@ -152,7 +152,7 @@ export function RoomCard({ room, index, onDelete, onStartSession }: RoomCardProp
             View details
           </button>
           <button
-            onClick={() => { setMenuOpen(false); if (onStartSession) onStartSession(room.id); else router.push(`/rooms/${room.id}/session/start`); }}
+            onClick={() => { setMenuOpen(false); if (onStartSession) onStartSession(room.id); else router.push(`/officer/session/${room.id}/start`); }}
             className="flex items-center gap-3 w-full py-3.5 rounded-xl text-on-surface
                        hover:bg-surface-container transition-colors font-label-lg text-[14px]"
           >
@@ -160,7 +160,7 @@ export function RoomCard({ room, index, onDelete, onStartSession }: RoomCardProp
             Start session
           </button>
           <button
-            onClick={() => { setMenuOpen(false); router.push(`/rooms/${room.id}/settings`); }}
+            onClick={() => { setMenuOpen(false); router.push(`/teacher/rooms/${room.id}/settings`); }}
             className="flex items-center gap-3 w-full py-3.5 rounded-xl text-on-surface
                        hover:bg-surface-container transition-colors font-label-lg text-[14px]"
           >

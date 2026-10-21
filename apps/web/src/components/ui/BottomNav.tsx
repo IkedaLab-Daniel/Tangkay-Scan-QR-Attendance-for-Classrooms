@@ -14,20 +14,20 @@ interface NavItem {
 
 const navItems: Record<Role, NavItem[]> = {
   teacher: [
-    { key: 'rooms', label: 'Rooms', icon: 'meeting_room', href: '/rooms' },
-    { key: 'reports', label: 'Reports', icon: 'bar_chart', href: '/reports' },
-    { key: 'settings', label: 'Settings', icon: 'settings', href: '/settings' },
+    { key: 'rooms', label: 'Rooms', icon: 'meeting_room', href: '/teacher/rooms' },
+    { key: 'reports', label: 'Reports', icon: 'bar_chart', href: '/teacher/reports' },
+    { key: 'settings', label: 'Settings', icon: 'settings', href: '/teacher/rooms' },
   ],
   student: [
     { key: 'rooms', label: 'Rooms', icon: 'meeting_room', href: '/student/rooms' },
-    { key: 'student', label: 'Me', icon: 'person', href: '/student' },
+    { key: 'student', label: 'Me', icon: 'person', href: '/student/rooms' },
     { key: 'reports', label: 'Reports', icon: 'bar_chart', href: '/student/reports' },
-    { key: 'settings', label: 'Settings', icon: 'settings', href: '/student/settings' },
+    { key: 'settings', label: 'Settings', icon: 'settings', href: '/student/rooms' },
   ],
   officer: [
-    { key: 'session', label: 'Session', icon: 'qr_code_scanner', href: '/officer/session' },
-    { key: 'manual', label: 'Manual', icon: 'edit_note', href: '/officer/manual' },
-    { key: 'settings', label: 'Settings', icon: 'settings', href: '/officer/settings' },
+    { key: 'session', label: 'Session', icon: 'qr_code_scanner', href: '/officer/rooms' },
+    { key: 'manual', label: 'Manual', icon: 'edit_note', href: '/officer/rooms' },
+    { key: 'settings', label: 'Settings', icon: 'settings', href: '/officer/rooms' },
   ],
 };
 
