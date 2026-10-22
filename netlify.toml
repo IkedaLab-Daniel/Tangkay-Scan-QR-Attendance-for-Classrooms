@@ -1,0 +1,8 @@
+[build]
+  base    = "apps/web"
+  command = "cd ../.. && npm install && cd apps/web && npm run build"
+  publish = ".next"
+
+[build.environment]
+  NODE_VERSION = "20"
+
