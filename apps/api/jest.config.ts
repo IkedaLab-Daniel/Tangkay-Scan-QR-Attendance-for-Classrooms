@@ -4,8 +4,9 @@ const config: Config = {
   testEnvironment: 'node',
   testMatch: ['**/*.test.ts'],
   transform: {
-    '^.+\\.tsx?$': ['ts-jest', {}],
+    '^.+\\.[tj]sx?$': ['ts-jest', {}],
   },
+  transformIgnorePatterns: ['node_modules/(?!(@scalar)/)'],
   setupFiles: ['<rootDir>/src/test/setup.ts'],
 };
 
