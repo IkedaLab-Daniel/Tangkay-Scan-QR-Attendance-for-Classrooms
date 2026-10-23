@@ -4,10 +4,8 @@ import React, { useEffect, useState } from 'react';
 import { useParams, useRouter } from 'next/navigation';
 import QRCode from 'react-qr-code';
 import { OfficerGuard } from '@/lib/auth';
-import { api } from '@/lib/api';
+import { api, BASE } from '@/lib/api';
 import { PageHeader } from '@/components/ui/PageHeader';
-
-const API_URL = process.env.NEXT_PUBLIC_API_URL ?? 'http://localhost:4000';
 
 // ─── Countdown ring ───────────────────────────────────────────────────────────
 
@@ -93,7 +91,7 @@ function LiveQrContent() {
   // SSE subscription
   useEffect(() => {
     if (!sessionId) return;
-    const es = new EventSource(`${API_URL}/api/sessions/${sessionId}/stream`, {
+    const es = new EventSource(`${BASE}/api/sessions/${sessionId}/stream`, {
       withCredentials: true,
     });
 

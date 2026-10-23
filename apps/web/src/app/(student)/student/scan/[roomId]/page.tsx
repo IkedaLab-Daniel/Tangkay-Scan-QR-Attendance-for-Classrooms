@@ -6,8 +6,7 @@ import jsQR from 'jsqr';
 import { StudentGuard } from '@/lib/auth';
 import { getDeviceFingerprint } from '@/lib/fingerprint';
 import type { AttendanceSession } from '@/lib/types';
-
-const API_URL = process.env.NEXT_PUBLIC_API_URL ?? 'http://localhost:4000';
+import { BASE } from '@/lib/api';
 
 // ─── Types ────────────────────────────────────────────────────────────────────
 
@@ -48,7 +47,7 @@ function QrScannerContent() {
   useEffect(() => {
     async function fetchSession() {
       try {
-        const res = await fetch(`${API_URL}/api/sessions/active?roomId=${roomId}`, {
+        const res = await fetch(`${BASE}/api/sessions/active?roomId=${roomId}`, {
           credentials: 'include',
         });
         if (!res.ok) {
@@ -136,7 +135,7 @@ function QrScannerContent() {
       }
 
       try {
-        const res = await fetch(`${API_URL}/api/sessions/${session.id}/scan`, {
+        const res = await fetch(`${BASE}/api/sessions/${session.id}/scan`, {
           method: 'POST',
           credentials: 'include',
           body: formData,

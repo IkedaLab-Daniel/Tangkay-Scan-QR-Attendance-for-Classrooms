@@ -4,7 +4,7 @@ import React, { useCallback, useEffect, useRef, useState } from 'react';
 import { useParams, useRouter } from 'next/navigation';
 import QRCode from 'react-qr-code';
 import { TeacherGuard } from '@/lib/auth';
-import { api } from '@/lib/api';
+import { api, BASE } from '@/lib/api';
 import { Room } from '@/lib/types';
 import { PageHeader } from '@/components/ui/PageHeader';
 import { BottomSheet } from '@/components/ui/BottomSheet';
@@ -36,7 +36,6 @@ interface Preset {
 
 // ─── Helpers ──────────────────────────────────────────────────────────────────
 
-const BASE = process.env.NEXT_PUBLIC_API_URL ?? 'http://localhost:4000';
 
 // ─── Segmented selector ───────────────────────────────────────────────────────
 

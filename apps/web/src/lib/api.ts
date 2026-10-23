@@ -1,6 +1,6 @@
 // In production, requests go to /api/* on the same origin (proxied by Next.js to Render).
 // In local dev, they go directly to localhost:4000.
-const BASE =
+export const BASE =
   typeof window !== 'undefined' && window.location.hostname !== 'localhost'
     ? ''
     : (process.env.NEXT_PUBLIC_API_URL ?? 'http://localhost:4000');

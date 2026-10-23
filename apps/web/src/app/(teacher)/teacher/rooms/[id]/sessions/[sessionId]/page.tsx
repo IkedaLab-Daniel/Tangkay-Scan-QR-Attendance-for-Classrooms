@@ -3,7 +3,7 @@
 import React, { useEffect, useState } from 'react';
 import { useParams, useRouter } from 'next/navigation';
 import { TeacherGuard } from '@/lib/auth';
-import { api } from '@/lib/api';
+import { api, BASE } from '@/lib/api';
 import { AttendanceRecord, AttendanceSession } from '@/lib/types';
 import { PageHeader } from '@/components/ui/PageHeader';
 import { Badge, BadgeVariant } from '@/components/ui/Badge';
@@ -69,7 +69,6 @@ function SessionDetailContent() {
   }, [roomId, sessionId]);
 
   function handleExport() {
-    const BASE = process.env.NEXT_PUBLIC_API_URL ?? 'http://localhost:4000';
     window.open(`${BASE}/api/rooms/${roomId}/sessions/${sessionId}/export`, '_blank');
   }
 
