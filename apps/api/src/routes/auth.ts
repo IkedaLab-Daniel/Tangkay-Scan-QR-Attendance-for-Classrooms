@@ -52,7 +52,7 @@ function issueRefreshToken(teacherId: string): string {
 }
 
 function setCookies(res: Response, accessToken: string, refreshToken: string): void {
-  const prod = process.env.NODE_ENV === 'production';
+  const prod = (process.env.WEB_ORIGIN ?? '').startsWith('https://');
   const sameSite = prod ? 'none' : 'lax';
   const secure = prod;
   res.cookie(ACCESS_COOKIE, accessToken, {
@@ -197,7 +197,7 @@ router.post('/teacher/refresh', async (req: Request, res: Response): Promise<voi
   const teacherId = payload.sub as string;
   const newAccessToken = issueAccessToken(teacherId);
 
-  const prod = process.env.NODE_ENV === 'production';
+  const prod = (process.env.WEB_ORIGIN ?? '').startsWith('https://');
   res.cookie(ACCESS_COOKIE, newAccessToken, {
     httpOnly: true,
     sameSite: prod ? 'none' : 'lax',
