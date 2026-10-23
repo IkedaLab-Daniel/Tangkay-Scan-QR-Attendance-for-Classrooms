@@ -256,4 +256,21 @@ router.get('/me', async (req: Request, res: Response): Promise<void> => {
   res.status(403).json({ error: 'Unknown token type' });
 });
 
+// ─── GET /api/auth/token — return raw access token for SSE bypass ─────────────
+// SSE connections can't go through the Next.js proxy (it buffers streams), so
+// the client fetches this token via the proxy then opens EventSource directly
+// to Render with ?token= to avoid buffering.
+
+router.get('/token', (req: Request, res: Response): void => {
+  const token: string | undefined = req.cookies?.access_token;
+  if (!token) { res.status(401).json({ error: 'No access token' }); return; }
+  // Validate it's a legitimate token before handing it out
+  try {
+    jwt.verify(token, process.env.JWT_SECRET as string);
+  } catch {
+    res.status(401).json({ error: 'Invalid or expired access token' }); return;
+  }
+  res.json({ token });
+});
+
 export default router;

@@ -4,7 +4,7 @@ import React, { useEffect, useState } from 'react';
 import { useParams, useRouter } from 'next/navigation';
 import QRCode from 'react-qr-code';
 import { OfficerGuard } from '@/lib/auth';
-import { api, BASE } from '@/lib/api';
+import { api } from '@/lib/api';
 import { PageHeader } from '@/components/ui/PageHeader';
 
 // ─── Countdown ring ───────────────────────────────────────────────────────────
@@ -89,36 +89,44 @@ function LiveQrContent() {
   }, [roomId]);
 
   // SSE subscription
+  // Next.js rewrites buffer streaming responses, so we bypass the proxy for SSE
+  // by connecting directly to Render with the access token as a query param.
   useEffect(() => {
     if (!sessionId) return;
-    const es = new EventSource(`${BASE}/api/sessions/${sessionId}/stream`, {
-      withCredentials: true,
-    });
+    let es: EventSource;
 
-    es.onmessage = (e) => {
-      try {
-        const data = JSON.parse(e.data as string) as {
-          token?: string;
-          expiresAt?: string;
-          ended?: boolean;
-        };
-        if (data.ended) {
-          router.push('/officer/rooms');
-          return;
+    const RENDER_API = process.env.NEXT_PUBLIC_API_URL ?? 'http://localhost:4000';
+
+    // Fetch the raw token via the proxied /api/auth/me endpoint (cookie is present),
+    // extract it from the Set-Cookie or use a dedicated token endpoint.
+    // Simpler: the API already validates ?token= JWTs — we fetch it via a one-off
+    // GET that returns the raw access_token value.
+    api.get<{ token: string }>('/api/auth/token').then(({ token: rawToken }) => {
+      const url = `${RENDER_API}/api/sessions/${sessionId}/stream?token=${encodeURIComponent(rawToken)}`;
+      es = new EventSource(url);
+
+      es.onmessage = (e) => {
+        try {
+          const data = JSON.parse(e.data as string) as {
+            token?: string;
+            expiresAt?: string;
+            ended?: boolean;
+          };
+          if (data.ended) {
+            router.push('/officer/rooms');
+            return;
+          }
+          if (data.token) setToken(data.token);
+          if (data.expiresAt) setExpiresAt(new Date(data.expiresAt));
+        } catch {
+          // ignore parse errors
         }
-        if (data.token) setToken(data.token);
-        if (data.expiresAt) setExpiresAt(new Date(data.expiresAt));
-      } catch {
-        // ignore parse errors
-      }
-    };
+      };
 
-    es.onerror = () => {
-      // SSE error — could retry; for now close silently
-      es.close();
-    };
+      es.onerror = () => es.close();
+    }).catch(() => {});
 
-    return () => es.close();
+    return () => es?.close();
   }, [sessionId, router]);
 
   // Poll present count every 10s

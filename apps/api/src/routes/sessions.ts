@@ -24,8 +24,9 @@ async function resolveUser(
   req: Request,
   res: Response,
 ): Promise<{ id: string; typ: string } | null> {
-  // Check for a valid access_token cookie manually
-  const token: string | undefined = req.cookies?.access_token;
+  // Cookie first; fall back to ?token= query param (used by SSE to bypass Next.js proxy buffering)
+  const token: string | undefined =
+    req.cookies?.access_token ?? (req.query.token as string | undefined);
   if (!token) {
     res.status(401).json({ error: 'No access token' });
     return null;
