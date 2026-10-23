@@ -1,9 +1,14 @@
-const BASE = process.env.NEXT_PUBLIC_API_URL ?? 'http://localhost:4000';
+// In production, requests go to /api/* on the same origin (proxied by Next.js to Render).
+// In local dev, they go directly to localhost:4000.
+const BASE =
+  typeof window !== 'undefined' && window.location.hostname !== 'localhost'
+    ? ''
+    : (process.env.NEXT_PUBLIC_API_URL ?? 'http://localhost:4000');
 
 async function request<T>(path: string, init?: RequestInit): Promise<T> {
   const res = await fetch(`${BASE}${path}`, {
     ...init,
-    credentials: 'include', // send httpOnly cookies
+    credentials: 'include', // send cookies (same-origin in prod via Next.js proxy)
     headers: { 'Content-Type': 'application/json', ...init?.headers },
   });
   if (!res.ok) {
