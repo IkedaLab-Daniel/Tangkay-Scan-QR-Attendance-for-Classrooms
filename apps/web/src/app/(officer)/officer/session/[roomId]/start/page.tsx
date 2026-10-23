@@ -189,7 +189,7 @@ function SessionStartContent() {
     <div className="flex flex-col w-full min-h-screen bg-surface">
       <PageHeader back title="Tangkay Scan — Officer Session Control" />
 
-      <div className="flex flex-col px-margin pt-20 pb-32 gap-space-xs">
+      <div className="flex flex-col px-margin gap-space-xs">
 
         {/* ── Room Info Card ── */}
         <div className="py-space-xs">

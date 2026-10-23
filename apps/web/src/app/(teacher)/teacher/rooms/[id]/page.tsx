@@ -271,7 +271,7 @@ function RoomDetailContent() {
     <div className="flex flex-col min-h-screen bg-surface">
       <PageHeader title={room.name} back action={headerAction} />
 
-      <div className="flex flex-col px-margin pt-20 pb-32">
+      <div className="flex flex-col px-margin pt-5">
         {/* Room info card */}
         <div className="flex flex-col gap-space-sm pt-space-xs mb-space-md">
           {/* Mode badge */}

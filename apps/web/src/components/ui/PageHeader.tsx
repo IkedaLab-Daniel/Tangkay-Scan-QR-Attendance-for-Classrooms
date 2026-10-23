@@ -15,7 +15,7 @@ export function PageHeader({ title, subtitle, back = false, action }: PageHeader
   const router = useRouter();
 
   return (
-    <header className="fixed top-0 w-full z-50 bg-surface/85 backdrop-blur-xl h-16 pt-safe px-margin">
+    <header className="fixed top-0 w-full z-50 bg-surface/85 backdrop-blur-xl h-16 pt-safe px-margin border-b-2 border-primary/50 ">
       <div className="flex items-center justify-between h-16">
         {/* Left: back arrow or sprout logo */}
         <div className="flex items-center gap-2 min-w-0">

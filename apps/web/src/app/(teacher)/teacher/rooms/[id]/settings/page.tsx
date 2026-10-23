@@ -375,7 +375,7 @@ function RoomSettingsContent() {
   const staticQrToken = room.static_qr_token ?? null;
 
   return (
-    <div className="flex flex-col w-full">
+    <div className="flex flex-col w-full pt-5">
       {/* Header */}
       <div className="px-margin pt-space-xs pb-space-sm flex items-center justify-between">
         <div className="flex items-center gap-space-sm">
