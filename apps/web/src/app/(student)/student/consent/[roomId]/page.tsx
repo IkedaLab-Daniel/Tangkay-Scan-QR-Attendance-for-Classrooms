@@ -37,7 +37,7 @@ export default function ConsentPage() {
     else setDenyLoading(true);
 
     try {
-      await api.post(`/api/rooms/${roomId}/consent`, { status });
+      await api.post(`/api/rooms/${roomId}/join/consent`, { status });
       if (status === 'denied') {
         setDenySheetOpen(true);
       } else {

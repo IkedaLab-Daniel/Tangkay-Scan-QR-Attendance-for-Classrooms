@@ -126,6 +126,8 @@ model Student {
   email                  String?
   parent_email           String?
   consent_status         ConsentStatus @default(pending)
+  password_hash          String?
+  email_verified         Boolean       @default(false)
   magic_link_token_hash  String?
   magic_link_expires_at  DateTime?
   join_code              String?       @unique

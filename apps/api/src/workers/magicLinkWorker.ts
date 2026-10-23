@@ -132,11 +132,7 @@ function buildApprovalHtml(opts: {
 // ─── Job handlers ─────────────────────────────────────────────────────────────
 
 async function processMagicLink(job: Job<EmailJobData>): Promise<void> {
-  const { to, token, inviteCode, roomName } = job.data as EmailJobData & {
-    token?: string;
-    inviteCode?: string;
-    roomName?: string;
-  };
+  const { to, token, inviteCode, roomName } = job.data;
 
   if (!to || !token) {
     console.warn(`[magicLinkWorker] magic-link job ${job.id} missing to/token — skipping`);
@@ -144,7 +140,7 @@ async function processMagicLink(job: Job<EmailJobData>): Promise<void> {
   }
 
   const webOrigin = process.env.WEB_ORIGIN ?? 'http://localhost:3000';
-  const signInUrl = `${webOrigin}/auth/verify/${token}`;
+  const signInUrl = `${webOrigin}/verify/${token}`;
   const room = roomName ?? (inviteCode ? `invite code ${inviteCode}` : 'TangkayScan');
 
   const html = buildMagicLinkHtml(signInUrl, room);
@@ -220,6 +216,87 @@ async function processTeacherApproval(job: Job<EmailJobData>): Promise<void> {
   await mailer.sendMail({ to: teacher.email, subject, html, text });
 }
 
+// ─── Email verification email ─────────────────────────────────────────────────
+
+function buildVerifyEmailHtml(verifyUrl: string, studentName: string): string {
+  return `<!DOCTYPE html>
+<html lang="en">
+<head><meta charset="UTF-8"><meta name="viewport" content="width=device-width,initial-scale=1"></head>
+<body style="margin:0;padding:0;background-color:#f4f4f4;font-family:Arial,sans-serif;">
+  <table width="100%" cellpadding="0" cellspacing="0" style="background-color:#f4f4f4;padding:24px 0;">
+    <tr><td align="center">
+      <table width="600" cellpadding="0" cellspacing="0" style="max-width:600px;width:100%;background-color:#ffffff;border:1px solid #e0e0e0;border-radius:4px;">
+        <tr>
+          <td style="padding:24px 32px;border-bottom:1px solid #e0e0e0;">
+            <p style="margin:0;font-size:18px;font-weight:bold;color:#1a1a1a;">TangkayScan</p>
+          </td>
+        </tr>
+        <tr>
+          <td style="padding:32px;">
+            <p style="margin:0 0 16px;font-size:15px;color:#333333;">Hi ${studentName},</p>
+            <p style="margin:0 0 16px;font-size:15px;color:#333333;">
+              Thanks for signing up! Click the button below to verify your email address and activate your account.
+              This link expires in <strong>1 hour</strong>.
+            </p>
+            <table cellpadding="0" cellspacing="0" style="margin:24px 0;">
+              <tr>
+                <td style="background-color:#126a3a;border-radius:4px;text-align:center;">
+                  <a href="${verifyUrl}"
+                     style="display:inline-block;padding:12px 28px;font-size:15px;color:#ffffff;text-decoration:none;font-family:Arial,sans-serif;">
+                    Verify my email
+                  </a>
+                </td>
+              </tr>
+            </table>
+            <p style="margin:0 0 8px;font-size:13px;color:#666666;">
+              If the button does not work, copy and paste this link into your browser:
+            </p>
+            <p style="margin:0;font-size:13px;color:#126a3a;word-break:break-all;">${verifyUrl}</p>
+            <p style="margin:24px 0 0;font-size:13px;color:#888888;">
+              If you did not create this account, you can ignore this email.
+            </p>
+          </td>
+        </tr>
+        <tr>
+          <td style="padding:16px 32px;border-top:1px solid #e0e0e0;">
+            <p style="margin:0;font-size:12px;color:#aaaaaa;">TangkayScan Attendance System</p>
+          </td>
+        </tr>
+      </table>
+    </td></tr>
+  </table>
+</body>
+</html>`;
+}
+
+async function processVerifyEmail(job: Job<EmailJobData>): Promise<void> {
+  const { to, token, studentName } = job.data;
+
+  if (!to || !token) {
+    console.warn(`[magicLinkWorker] verify-email job ${job.id} missing to/token — skipping`);
+    return;
+  }
+
+  const webOrigin = process.env.WEB_ORIGIN ?? 'http://localhost:3000';
+  const verifyUrl = `${webOrigin}/auth/student/verify-email/${token}`;
+  const name = studentName ?? 'there';
+
+  const html = buildVerifyEmailHtml(verifyUrl, name);
+  const text = [
+    `Hi ${name},`,
+    ``,
+    `Thanks for signing up for TangkayScan! Verify your email using this link (expires in 1 hour):`,
+    ``,
+    verifyUrl,
+    ``,
+    `If you did not create this account, you can ignore this email.`,
+    ``,
+    `TangkayScan Attendance System`,
+  ].join('\n');
+
+  await mailer.sendMail({ to, subject: 'Verify your TangkayScan account', html, text });
+}
+
 // ─── Worker factory ───────────────────────────────────────────────────────────
 
 export function createMagicLinkWorker(): Worker<EmailJobData> {
@@ -228,6 +305,8 @@ export function createMagicLinkWorker(): Worker<EmailJobData> {
     async (job) => {
       if (job.name === 'magic-link') {
         await processMagicLink(job);
+      } else if (job.name === 'verify-email') {
+        await processVerifyEmail(job);
       } else if (job.name === 'teacher-approval-needed') {
         await processTeacherApproval(job);
       }

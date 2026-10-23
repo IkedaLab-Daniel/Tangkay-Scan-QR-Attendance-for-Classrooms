@@ -10,6 +10,7 @@ export interface Room {
   geofence_radius_m: number;
   require_manual_approval: boolean;
   invite_code: string;
+  teacher_name?: string;
   student_count?: number;
   last_session_at?: string | null;
   status?: 'active' | 'idle';

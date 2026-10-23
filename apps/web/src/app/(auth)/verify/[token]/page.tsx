@@ -5,12 +5,14 @@ import { useParams, useRouter } from 'next/navigation';
 import Link from 'next/link';
 import { SproutIcon, Spinner } from '@/components/ui';
 import { api } from '@/lib/api';
+import { useAuth } from '@/lib/auth';
 
 type Status = 'loading' | 'success' | 'error';
 
 export default function VerifyTokenPage() {
   const { token } = useParams<{ token: string }>();
   const router = useRouter();
+  const { refresh } = useAuth();
   const [status, setStatus] = useState<Status>('loading');
   const [errorMsg, setErrorMsg] = useState('');
 
@@ -18,6 +20,9 @@ export default function VerifyTokenPage() {
     async function verify() {
       try {
         await api.get(`/api/auth/student/verify/${token}`);
+
+        // Refresh auth context so downstream guards see the new session
+        await refresh();
 
         // Check for a pending invite stored before the magic link was requested
         let pendingInvite: string | null = null;

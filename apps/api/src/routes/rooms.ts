@@ -126,8 +126,9 @@ router.get('/', requireAuth('teacher'), async (req: Request, res: Response): Pro
   const rooms = await prisma.room.findMany({
     where: { teacher_id: req.user!.id },
     orderBy: { created_at: 'desc' },
+    include: { _count: { select: { members: true } } },
   });
-  res.json(rooms);
+  res.json(rooms.map(({ _count, ...room }) => ({ ...room, student_count: _count.members })));
 });
 
 // ─── GET /api/rooms/my-rooms — student-auth; all enrolled rooms ──────────────
@@ -135,10 +136,17 @@ router.get('/', requireAuth('teacher'), async (req: Request, res: Response): Pro
 router.get('/my-rooms', requireAuth('student'), async (req: Request, res: Response): Promise<void> => {
   const members = await prisma.roomMember.findMany({
     where: { student_id: req.user!.id },
-    include: { room: true },
+    include: { room: { include: { teacher: { select: { name: true } } } } },
     orderBy: { joined_at: 'desc' },
   });
-  res.json(members.map((m) => ({ ...m.room, role: m.role, officer_title: m.officer_title })));
+  res.json(
+    members.map((m) => ({
+      ...m.room,
+      teacher_name: m.room.teacher.name,
+      role: m.role,
+      officer_title: m.officer_title,
+    })),
+  );
 });
 
 // ─── GET /api/rooms/my-officer-rooms — student-auth; rooms where the student is an officer ──
@@ -341,6 +349,31 @@ router.get('/:id/members', requireAuth('teacher'), async (req: Request, res: Res
   });
 
   res.json(members);
+});
+
+// ─── DELETE /api/rooms/:id/members/:memberId ─────────────────────────────────
+
+router.delete('/:id/members/:memberId', requireAuth('teacher'), async (req: Request, res: Response): Promise<void> => {
+  const { id: roomId, memberId } = req.params;
+
+  const room = await prisma.room.findUnique({ where: { id: roomId } });
+  if (!room) {
+    res.status(404).json({ error: 'Room not found' });
+    return;
+  }
+  if (room.teacher_id !== req.user!.id) {
+    res.status(403).json({ error: 'Forbidden' });
+    return;
+  }
+
+  const member = await prisma.roomMember.findUnique({ where: { id: memberId } });
+  if (!member || member.room_id !== roomId) {
+    res.status(404).json({ error: 'Member not found' });
+    return;
+  }
+
+  await prisma.roomMember.delete({ where: { id: memberId } });
+  res.json({ ok: true });
 });
 
 // ─── POST /api/rooms/:id/static-qr/regenerate ────────────────────────────────

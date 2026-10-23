@@ -53,7 +53,7 @@ export function BottomSheet({ open, onClose, title, children }: BottomSheetProps
         className={[
           'fixed bottom-0 inset-x-0 z-50',
           'bg-surface-container-lowest rounded-t-3xl shadow-float',
-          'transition-transform duration-300',
+          'transition-transform duration-300 pb-12',
           open ? 'translate-y-0' : 'translate-y-full',
         ].join(' ')}
       >

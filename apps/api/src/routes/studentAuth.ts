@@ -1,5 +1,6 @@
 import { Router, Request, Response } from 'express';
 import crypto from 'crypto';
+import bcrypt from 'bcryptjs';
 import jwt from 'jsonwebtoken';
 import { z } from 'zod';
 import { PrismaClient } from '@prisma/client';
@@ -12,10 +13,21 @@ const prisma = new PrismaClient();
 
 // ─── Schemas ──────────────────────────────────────────────────────────────────
 
+const signupSchema = z.object({
+  name: z.string().min(2),
+  email: z.string().email(),
+  password: z.string().min(8),
+});
+
+const loginSchema = z.object({
+  email: z.string().email(),
+  password: z.string().min(1),
+});
+
 const requestLinkSchema = z.object({
   name: z.string().min(2),
   email: z.string().email(),
-  inviteCode: z.string().min(1),
+  inviteCode: z.string().min(1).optional(),
 });
 
 const verifyCodeSchema = z.object({
@@ -23,7 +35,14 @@ const verifyCodeSchema = z.object({
   inviteCode: z.string().min(1),
 });
 
+const resendVerificationSchema = z.object({
+  email: z.string().email(),
+});
+
 // ─── Constants ────────────────────────────────────────────────────────────────
+
+const BCRYPT_ROUNDS = 12;
+const EMAIL_VERIFY_TTL_SECS = 60 * 60; // 1 hour
 
 const ACCESS_COOKIE = 'access_token';
 const REFRESH_COOKIE = 'refresh_token';
@@ -33,7 +52,7 @@ const REFRESH_TTL_MS = 7 * 24 * 60 * 60 * 1000; // 7 days
 const MAGIC_LINK_TTL_SECS = 15 * 60;          // 15 minutes (Redis TTL)
 const MAGIC_LINK_TTL_MS = MAGIC_LINK_TTL_SECS * 1000;
 
-const RATE_LIMIT = 5;
+const RATE_LIMIT = 500; // ! FOR TESTING
 const RATE_WINDOW_SECS = 15 * 60; // 15 minutes
 
 // ─── Helpers ──────────────────────────────────────────────────────────────────
@@ -110,6 +129,186 @@ async function checkRateLimit(key: string): Promise<boolean> {
   return count > RATE_LIMIT;
 }
 
+// ─── POST /api/auth/student/signup ───────────────────────────────────────────
+
+router.post('/signup', async (req: Request, res: Response): Promise<void> => {
+  const ip =
+    (req.headers['x-forwarded-for'] as string | undefined)?.split(',')[0]?.trim() ??
+    req.socket.remoteAddress ??
+    'unknown';
+
+  const rateLimited = await checkRateLimit(`rl:student-signup:${ip}`);
+  if (rateLimited) {
+    res.status(429).json({ error: 'Too many requests. Try again in 15 minutes.' });
+    return;
+  }
+
+  const parsed = signupSchema.safeParse(req.body);
+  if (!parsed.success) {
+    res.status(400).json({ error: 'Validation failed', details: parsed.error.flatten() });
+    return;
+  }
+
+  const { name, email, password } = parsed.data;
+
+  const existing = await prisma.student.findFirst({ where: { email } });
+  if (existing) {
+    res.status(409).json({ error: 'An account with this email already exists.' });
+    return;
+  }
+
+  const password_hash = await bcrypt.hash(password, BCRYPT_ROUNDS);
+
+  // Generate email verification token
+  const token = crypto.randomBytes(32).toString('hex');
+  await redis.set(
+    `verify-email:${token}`,
+    JSON.stringify({ email, name }),
+    'EX',
+    EMAIL_VERIFY_TTL_SECS,
+  );
+
+  const student = await prisma.student.create({
+    data: { name, email, password_hash, email_verified: false },
+  });
+
+  await emailQueue.add('verify-email', {
+    type: 'verify-email',
+    to: email,
+    token,
+    studentName: name,
+  });
+
+  res.status(201).json({ message: 'Account created. Check your email to verify.' });
+  void student; // created but not yet authenticated — must verify first
+});
+
+// ─── POST /api/auth/student/login ────────────────────────────────────────────
+
+router.post('/login', async (req: Request, res: Response): Promise<void> => {
+  const ip =
+    (req.headers['x-forwarded-for'] as string | undefined)?.split(',')[0]?.trim() ??
+    req.socket.remoteAddress ??
+    'unknown';
+
+  const rateLimited = await checkRateLimit(`rl:student-login:${ip}`);
+  if (rateLimited) {
+    res.status(429).json({ error: 'Too many requests. Try again in 15 minutes.' });
+    return;
+  }
+
+  const parsed = loginSchema.safeParse(req.body);
+  if (!parsed.success) {
+    res.status(400).json({ error: 'Validation failed', details: parsed.error.flatten() });
+    return;
+  }
+
+  const { email, password } = parsed.data;
+
+  const student = await prisma.student.findFirst({ where: { email } });
+  if (!student || !student.password_hash) {
+    res.status(401).json({ error: 'Invalid email or password.' });
+    return;
+  }
+
+  const match = await bcrypt.compare(password, student.password_hash);
+  if (!match) {
+    res.status(401).json({ error: 'Invalid email or password.' });
+    return;
+  }
+
+  if (!student.email_verified) {
+    res.status(403).json({ error: 'Please verify your email before signing in.', code: 'email_not_verified' });
+    return;
+  }
+
+  await authenticateStudent(res, student);
+  res.json({ student: { id: student.id, name: student.name, email: student.email } });
+});
+
+// ─── POST /api/auth/student/send-verification ────────────────────────────────
+
+router.post('/send-verification', async (req: Request, res: Response): Promise<void> => {
+  const ip =
+    (req.headers['x-forwarded-for'] as string | undefined)?.split(',')[0]?.trim() ??
+    req.socket.remoteAddress ??
+    'unknown';
+
+  const rateLimited = await checkRateLimit(`rl:send-verification:${ip}`);
+  if (rateLimited) {
+    res.status(429).json({ error: 'Too many requests. Try again in 15 minutes.' });
+    return;
+  }
+
+  const parsed = resendVerificationSchema.safeParse(req.body);
+  if (!parsed.success) {
+    res.status(400).json({ error: 'Validation failed', details: parsed.error.flatten() });
+    return;
+  }
+
+  const { email } = parsed.data;
+  const student = await prisma.student.findFirst({ where: { email } });
+
+  // Always return 200 to avoid email enumeration
+  if (!student || !student.password_hash || student.email_verified) {
+    res.json({ message: 'If an unverified account exists, a new link was sent.' });
+    return;
+  }
+
+  const token = crypto.randomBytes(32).toString('hex');
+  await redis.set(
+    `verify-email:${token}`,
+    JSON.stringify({ email, name: student.name }),
+    'EX',
+    EMAIL_VERIFY_TTL_SECS,
+  );
+
+  await emailQueue.add('verify-email', {
+    type: 'verify-email',
+    to: email,
+    token,
+    studentName: student.name,
+  });
+
+  res.json({ message: 'If an unverified account exists, a new link was sent.' });
+});
+
+// ─── GET /api/auth/student/verify-email/:token ───────────────────────────────
+
+router.get('/verify-email/:token', async (req: Request, res: Response): Promise<void> => {
+  const { token } = req.params;
+  const raw = await redis.get(`verify-email:${token}`);
+
+  if (!raw) {
+    res.status(400).json({ error: 'Invalid or expired verification link.' });
+    return;
+  }
+
+  let payload: { email: string; name: string };
+  try {
+    payload = JSON.parse(raw) as { email: string; name: string };
+  } catch {
+    res.status(400).json({ error: 'Malformed verification token.' });
+    return;
+  }
+
+  const student = await prisma.student.findFirst({ where: { email: payload.email } });
+  if (!student) {
+    res.status(404).json({ error: 'Account not found.' });
+    return;
+  }
+
+  await prisma.student.update({
+    where: { id: student.id },
+    data: { email_verified: true },
+  });
+
+  await redis.del(`verify-email:${token}`);
+
+  await authenticateStudent(res, student);
+  res.json({ student: { id: student.id, name: student.name, email: student.email } });
+});
+
 // ─── POST /api/auth/student/request-link ──────────────────────────────────────
 
 router.post('/request-link', async (req: Request, res: Response): Promise<void> => {
@@ -132,30 +331,33 @@ router.post('/request-link', async (req: Request, res: Response): Promise<void> 
 
   const { name, email, inviteCode } = parsed.data;
 
-  // Verify inviteCode resolves to a real room
-  const room = await prisma.room.findUnique({ where: { invite_code: inviteCode } });
-  if (!room) {
-    res.status(404).json({ error: 'Invalid invite code' });
-    return;
+  // When an inviteCode is provided, verify it resolves to a real room
+  let roomName: string | undefined;
+  if (inviteCode) {
+    const room = await prisma.room.findUnique({ where: { invite_code: inviteCode } });
+    if (!room) {
+      res.status(404).json({ error: 'Invalid invite code' });
+      return;
+    }
+    roomName = room.name;
   }
 
-  // Generate plaintext token, store SHA-256 hash in Redis
+  // Generate plaintext token, store payload in Redis
   const token = crypto.randomBytes(32).toString('hex');
   const redisKey = `magic:${token}`;
   await redis.set(
     redisKey,
-    JSON.stringify({ email, name, inviteCode }),
+    JSON.stringify({ email, name, inviteCode: inviteCode ?? null }),
     'EX',
     MAGIC_LINK_TTL_SECS,
   );
 
   // Enqueue magic-link email (worker handles actual delivery)
-  const magicUrl = `${process.env.WEB_ORIGIN ?? 'http://localhost:3000'}/join/verify?token=${token}`;
   await emailQueue.add('magic-link', {
     type: 'magic-link',
     to: email,
-    subject: 'Your TangkayScan login link',
-    html: `<p>Hi ${name},</p><p>Click <a href="${magicUrl}">here</a> to join the room. This link expires in 15 minutes.</p>`,
+    token,
+    ...(inviteCode ? { inviteCode, roomName } : {}),
   });
 
   res.json({ message: 'Check your email' });
@@ -173,9 +375,9 @@ router.get('/verify/:token', async (req: Request, res: Response): Promise<void> 
     return;
   }
 
-  let payload: { email: string; name: string; inviteCode: string };
+  let payload: { email: string; name: string; inviteCode: string | null };
   try {
-    payload = JSON.parse(raw) as { email: string; name: string; inviteCode: string };
+    payload = JSON.parse(raw) as { email: string; name: string; inviteCode: string | null };
   } catch {
     res.status(400).json({ error: 'Malformed magic link payload' });
     return;

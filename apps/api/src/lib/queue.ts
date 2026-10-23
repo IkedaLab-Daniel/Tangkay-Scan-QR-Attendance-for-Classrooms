@@ -2,10 +2,16 @@ import { Queue } from 'bullmq';
 import redis from './redis';
 
 export interface EmailJobData {
-  type: 'welcome' | 'magic-link' | 'generic' | 'teacher-approval-needed';
+  type: 'welcome' | 'magic-link' | 'verify-email' | 'generic' | 'teacher-approval-needed';
   to?: string;
   subject?: string;
   html?: string;
+  // magic-link fields
+  token?: string;
+  inviteCode?: string;
+  roomName?: string;
+  // verify-email fields
+  studentName?: string;
   // teacher-approval-needed fields
   recordId?: string;
   roomId?: string;

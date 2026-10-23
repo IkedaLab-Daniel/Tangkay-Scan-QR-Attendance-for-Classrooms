@@ -21,6 +21,7 @@ import { createEmailWorker } from './workers/emailWorker';
 import { createMagicLinkWorker } from './workers/magicLinkWorker';
 import { scheduleRetentionCleanup } from './jobs/retentionCleanup';
 import studentAttendanceRouter from './routes/studentAttendance';
+import joinRouter from './routes/join';
 
 const app = express();
 const PORT = process.env.PORT ?? 4000;
@@ -70,6 +71,7 @@ app.use('/api/sessions', scanRouter);
 app.use('/api/sessions', manualRouter);
 app.use('/api/rooms/:id', roomSessionsRouter);
 app.use('/api/sessions', sessionRecordsRouter);
+app.use('/api/rooms/:id/join', joinRouter);
 app.use('/api/rooms/:id', backgroundRouter);
 app.use('/api/student', studentAttendanceRouter);
 
