@@ -1,69 +1,64 @@
 import React from 'react';
 
 export type BadgeVariant =
-  | 'present'
-  | 'pending'
-  | 'absent'
   | 'strict'
-  | 'balanced'
   | 'static'
+  | 'balanced'
   | 'manual'
-  | 'active'
+  | 'present'
+  | 'absent'
+  | 'pending'
   | 'flagged'
-  | 'review';
+  | 'active';
 
 interface BadgeProps {
   variant: BadgeVariant;
   label?: string;
   dot?: boolean;
+  className?: string;
 }
 
-const defaultLabels: Record<BadgeVariant, string> = {
-  present: 'Present',
-  pending: 'Pending',
-  absent: 'Absent',
-  strict: 'Strict',
-  balanced: 'Balanced',
-  static: 'Static',
-  manual: 'Manual',
-  active: 'Active',
-  flagged: 'Flagged',
-  review: 'Review',
-};
-
 const variantClasses: Record<BadgeVariant, string> = {
-  present: 'bg-primary-fixed text-on-primary-fixed',
-  active: 'bg-primary-fixed text-on-primary-fixed',
-  balanced: 'bg-primary-fixed text-on-primary-fixed',
-  pending: 'bg-secondary-fixed text-on-secondary-fixed',
-  absent: 'bg-error-container text-on-error-container',
-  flagged: 'bg-error-container text-on-error-container',
-  strict: 'bg-on-surface text-surface',
-  static: 'bg-surface-container-highest text-on-surface-variant',
-  review: 'bg-secondary-fixed-dim text-on-secondary-fixed',
-  manual: 'bg-tertiary-fixed text-on-tertiary-fixed',
+  strict:   'bg-[#fdecea] text-[#ba1a1a] border-[#f5c2be]',
+  static:   'bg-[#e8f0fe] text-[#1a5cb8] border-[#b8d0f5]',
+  balanced: 'bg-[#e8f5ec] text-[#126a3a] border-[#b3dfc1]',
+  manual:   'bg-[#f3eeff] text-[#5b3fa0] border-[#d4bcf7]',
+  present:  'bg-[#e8f5ec] text-[#126a3a] border-[#b3dfc1]',
+  absent:   'bg-[#fdecea] text-[#ba1a1a] border-[#f5c2be]',
+  pending:  'bg-[#fff3ee] text-[#94492b] border-[#fdd4be]',
+  flagged:  'bg-[#fff8e1] text-[#7a5800] border-[#ffe08a]',
+  active:   'bg-primary-fixed text-on-primary-fixed border-primary-fixed-dim',
 };
 
-export function Badge({ variant, label, dot = false }: BadgeProps) {
+const dotColors: Record<BadgeVariant, string> = {
+  strict:   'bg-[#ba1a1a]',
+  static:   'bg-[#1a5cb8]',
+  balanced: 'bg-[#126a3a]',
+  manual:   'bg-[#5b3fa0]',
+  present:  'bg-[#126a3a]',
+  absent:   'bg-[#ba1a1a]',
+  pending:  'bg-[#94492b]',
+  flagged:  'bg-[#7a5800]',
+  active:   'bg-primary',
+};
+
+export function Badge({ variant, label, dot, className = '' }: BadgeProps) {
   return (
     <span
       className={[
-        'inline-flex items-center gap-1.5 rounded-full px-2.5 py-0.5',
-        'font-label-sm whitespace-nowrap',
+        'inline-flex items-center gap-1 px-2 py-0.5 rounded-full',
+        'font-label-sm text-[11px] font-semibold border',
         variantClasses[variant],
-      ].join(' ')}
+        className,
+      ].filter(Boolean).join(' ')}
     >
       {dot && (
         <span
-          className={[
-            'w-1.5 h-1.5 rounded-full animate-pulse shrink-0',
-            variant === 'absent' || variant === 'flagged'
-              ? 'bg-on-error-container'
-              : 'bg-current',
-          ].join(' ')}
+          className={`w-1.5 h-1.5 rounded-full shrink-0 ${dotColors[variant]}`}
+          aria-hidden="true"
         />
       )}
-      {label ?? defaultLabels[variant]}
+      {label !== undefined && label}
     </span>
   );
 }
