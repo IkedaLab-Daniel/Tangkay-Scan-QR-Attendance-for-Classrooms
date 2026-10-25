@@ -2,7 +2,7 @@
 
 import React, { useEffect, useState } from 'react';
 import { useParams, useRouter } from 'next/navigation';
-import { OfficerGuard, useAuth } from '@/lib/auth';
+import { StudentGuard, useAuth } from '@/lib/auth';
 import { api } from '@/lib/api';
 import { Room } from '@/lib/types';
 import { PageHeader } from '@/components/ui/PageHeader';
@@ -389,8 +389,8 @@ function SessionStartContent() {
 
 export default function OfficerSessionStartPage() {
   return (
-    <OfficerGuard>
+    <StudentGuard>
       <SessionStartContent />
-    </OfficerGuard>
+    </StudentGuard>
   );
 }

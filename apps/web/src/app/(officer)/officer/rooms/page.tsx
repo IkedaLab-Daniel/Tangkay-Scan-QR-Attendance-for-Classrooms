@@ -2,14 +2,13 @@
 
 import React, { useEffect, useState } from 'react';
 import { useRouter } from 'next/navigation';
-import { OfficerGuard, useAuth } from '@/lib/auth';
+import { StudentGuard, useAuth } from '@/lib/auth';
 import { api } from '@/lib/api';
 import { Room } from '@/lib/types';
 import { Badge, BadgeVariant } from '@/components/ui/Badge';
 import { EmptyState } from '@/components/ui/EmptyState';
 import { Avatar } from '@/components/ui/Avatar';
 import { PageHeader } from '@/components/ui/PageHeader';
-import { Spinner } from '@/components/ui/Spinner';
 
 function getGreeting(): string {
   const h = new Date().getHours();
@@ -158,8 +157,8 @@ function OfficerRoomsContent() {
 
 export default function OfficerRoomsPage() {
   return (
-    <OfficerGuard>
+    <StudentGuard>
       <OfficerRoomsContent />
-    </OfficerGuard>
+    </StudentGuard>
   );
 }

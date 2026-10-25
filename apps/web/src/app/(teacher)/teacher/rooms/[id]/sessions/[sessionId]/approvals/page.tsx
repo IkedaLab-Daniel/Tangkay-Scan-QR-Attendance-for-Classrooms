@@ -215,7 +215,6 @@ function ApprovalCard({
   const initials = getInitials(name);
   const officerName = record.markedBy?.name ?? 'Unknown Officer';
   const officerTitle = record.markedBy?.officerTitle ?? 'Officer';
-  const isIdle = decisionState.type === 'idle';
 
   async function submitDecision(decision: 'approved' | 'rejected', reason?: string) {
     setDecisionState({ type: 'submitting' });

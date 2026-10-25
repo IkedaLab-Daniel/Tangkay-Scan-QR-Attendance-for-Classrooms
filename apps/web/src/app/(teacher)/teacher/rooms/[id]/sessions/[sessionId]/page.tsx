@@ -1,7 +1,7 @@
 'use client';
 
 import React, { useEffect, useState } from 'react';
-import { useParams, useRouter } from 'next/navigation';
+import { useParams } from 'next/navigation';
 import { TeacherGuard } from '@/lib/auth';
 import { api } from '@/lib/api';
 import { AttendanceRecord, AttendanceSession } from '@/lib/types';
@@ -49,7 +49,6 @@ function isFlagged(record: AttendanceRecord): boolean {
 
 function SessionDetailContent() {
   const params = useParams();
-  const router = useRouter();
   const roomId = params.id as string;
   const sessionId = params.sessionId as string;
 

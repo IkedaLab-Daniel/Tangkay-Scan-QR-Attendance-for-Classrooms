@@ -209,13 +209,6 @@ export async function checkRiskSignals(
   return { pass: true, flag: score !== 'low', riskScore: score, riskSignals: signals };
 }
 
-// ─── Check 7: Selfie policy (STUB) ────────────────────────────────────────────
-
-export async function checkSelfie(_ctx: PipelineContext): Promise<CheckResult> {
-  // Replaced in Sub-Task 10
-  return { pass: true };
-}
-
 // ─── Pipeline runner ──────────────────────────────────────────────────────────
 
 export async function runPipeline(
@@ -281,9 +274,7 @@ export async function runPipeline(
     };
   }
 
-  // Selfie stub
-  await checkSelfie(ctx);
-
+  // NOTE: Selfie policy enforcement is handled before the pipeline in routes/scan.ts.
   return {
     pass: true,
     flag: geoResult.flag || riskResult.flag,

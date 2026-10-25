@@ -1,23 +1,19 @@
 import { Router, Request, Response } from 'express';
 import { customAlphabet } from 'nanoid';
-import crypto from 'crypto';
+import { sha256 } from '../lib/crypto';
 import jwt from 'jsonwebtoken';
 import { z } from 'zod';
-import { PrismaClient } from '@prisma/client';
-import { requireAuth } from '../middleware/auth';
+import { requireAuth, requireAnyAuth } from '../middleware/auth';
 import { getModePreset } from '../lib/modePresets';
 import joinRouter from './join';
 import officersRouter from './officers';
+import { prisma } from '../lib/prisma';
 
 const router = Router();
-const prisma = new PrismaClient();
 
 // URL-safe alphabet (A-Z a-z 0-9 _ -)
 const nanoid = customAlphabet('ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789_-', 8);
 
-function sha256(value: string): string {
-  return crypto.createHash('sha256').update(value).digest('hex');
-}
 
 // ─── Schemas ──────────────────────────────────────────────────────────────────
 
@@ -162,27 +158,7 @@ router.get('/my-officer-rooms', requireAuth('student'), async (req: Request, res
 
 // ─── GET /api/rooms/:id — teacher owner OR any student member ─────────────────
 
-router.get('/:id', async (req: Request, res: Response): Promise<void> => {
-  // Accept both teacher and student tokens
-  const token: string | undefined = (req as Request & { cookies: Record<string, string> }).cookies?.access_token;
-  if (!token) {
-    res.status(401).json({ error: 'No access token' });
-    return;
-  }
-
-  let payload: { sub: string; typ: string };
-  try {
-    payload = jwt.verify(token, process.env.JWT_SECRET as string) as { sub: string; typ: string };
-  } catch {
-    res.status(401).json({ error: 'Invalid or expired access token' });
-    return;
-  }
-
-  if (payload.typ !== 'teacher' && payload.typ !== 'student') {
-    res.status(403).json({ error: 'Forbidden' });
-    return;
-  }
-
+router.get('/:id', requireAnyAuth('teacher', 'student'), async (req: Request, res: Response): Promise<void> => {
   const room = await prisma.room.findUnique({ where: { id: req.params.id } });
 
   if (!room) {
@@ -190,15 +166,15 @@ router.get('/:id', async (req: Request, res: Response): Promise<void> => {
     return;
   }
 
-  if (payload.typ === 'teacher') {
-    if (room.teacher_id !== payload.sub) {
+  if (req.user!.typ === 'teacher') {
+    if (room.teacher_id !== req.user!.id) {
       res.status(403).json({ error: 'Forbidden' });
       return;
     }
   } else {
     // student — must be a member of this room
     const member = await prisma.roomMember.findFirst({
-      where: { student_id: payload.sub, room_id: room.id },
+      where: { student_id: req.user!.id, room_id: room.id },
     });
     if (!member) {
       res.status(403).json({ error: 'Forbidden' });

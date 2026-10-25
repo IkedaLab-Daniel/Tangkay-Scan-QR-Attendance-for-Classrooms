@@ -115,27 +115,3 @@ export function StudentGuard({ children }: { children: React.ReactNode }) {
   return <>{children}</>;
 }
 
-/**
- * OfficerGuard — allows student JWT holders (officers are students with role='officer' in room_members).
- * Redirects to /welcome if not authenticated as a student.
- */
-export function OfficerGuard({ children }: { children: React.ReactNode }) {
-  const { user, loading } = useAuth();
-  const router = useRouter();
-
-  useEffect(() => {
-    if (!loading && (!user || user.typ !== 'student')) {
-      router.replace('/welcome');
-    }
-  }, [user, loading, router]);
-
-  if (loading || !user) {
-    return (
-      <div className="min-h-screen bg-background flex items-center justify-center">
-        <Spinner />
-      </div>
-    );
-  }
-
-  return <>{children}</>;
-}

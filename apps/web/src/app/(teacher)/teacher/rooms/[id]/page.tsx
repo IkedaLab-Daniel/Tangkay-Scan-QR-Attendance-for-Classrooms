@@ -7,7 +7,6 @@ import { api } from '@/lib/api';
 import { Room, RoomMember, AttendanceSession } from '@/lib/types';
 import { PageHeader } from '@/components/ui/PageHeader';
 import { Badge } from '@/components/ui/Badge';
-import { Avatar } from '@/components/ui/Avatar';
 import { BottomSheet } from '@/components/ui/BottomSheet';
 import { Button } from '@/components/ui/Button';
 import { Spinner } from '@/components/ui/Spinner';

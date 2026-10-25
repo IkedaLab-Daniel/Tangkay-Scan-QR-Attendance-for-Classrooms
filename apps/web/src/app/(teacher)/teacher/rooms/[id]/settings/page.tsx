@@ -6,7 +6,6 @@ import QRCode from 'react-qr-code';
 import { TeacherGuard } from '@/lib/auth';
 import { api } from '@/lib/api';
 import { Room } from '@/lib/types';
-import { PageHeader } from '@/components/ui/PageHeader';
 import { BottomSheet } from '@/components/ui/BottomSheet';
 import { Spinner } from '@/components/ui/Spinner';
 import { useToast } from '@/components/ui/useToast';

@@ -1,6 +1,6 @@
 import { Router, Request, Response } from 'express';
 import { z } from 'zod';
-import { PrismaClient, Prisma } from '@prisma/client';
+import { Prisma } from '@prisma/client';
 import path from 'path';
 import fs from 'fs';
 import multer from 'multer';
@@ -10,9 +10,9 @@ import { runPipeline, ScanPayload } from '../lib/scanPipeline';
 import { pickRepresentativeReading } from '../lib/geo';
 import { parentQueue } from '../lib/queue';
 import { validateImageSignature, processImage } from '../lib/imageProcessor';
+import { prisma } from '../lib/prisma';
 
 const router = Router();
-const prisma = new PrismaClient();
 
 // ─── Upload directory ─────────────────────────────────────────────────────────
 
@@ -29,6 +29,14 @@ function ensureSelfieDir(): void {
 const upload = multer({
   storage: multer.memoryStorage(),
   limits: { fileSize: 5 * 1024 * 1024 }, // 5 MB raw max
+  fileFilter: (_req, file, cb) => {
+    const allowed = ['image/jpeg', 'image/png', 'image/webp'];
+    if (allowed.includes(file.mimetype)) {
+      cb(null, true);
+    } else {
+      cb(new Error('Only JPEG, PNG, and WebP images are allowed'));
+    }
+  },
 });
 
 // ─── Zod schema ───────────────────────────────────────────────────────────────

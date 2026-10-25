@@ -9,12 +9,10 @@ export interface JwtPayload {
 }
 
 // Extend Express Request to carry the verified user identity
-declare global {
-  namespace Express {
-    interface Request {
-      user?: { id: string; typ: string };
-      member?: import('@prisma/client').RoomMember;
-    }
+declare module 'express-serve-static-core' {
+  interface Request {
+    user?: { id: string; typ: string };
+    member?: import('@prisma/client').RoomMember;
   }
 }
 
@@ -44,6 +42,31 @@ export function requireAuth(expectedTyp: string) {
     if (payload.typ !== expectedTyp) {
       res.status(403).json({ error: 'Forbidden: role mismatch' });
       return;
+    }
+
+    req.user = { id: payload.sub, typ: payload.typ };
+    next();
+  };
+}
+
+/**
+ * Accepts any of the listed roles (or any authenticated user when no roles are given).
+ * Attaches `req.user = { id, typ }` on success.
+ */
+export function requireAnyAuth(...roles: string[]) {
+  return (req: Request, res: Response, next: NextFunction): void => {
+    const token: string | undefined = req.cookies?.access_token;
+    if (!token) { res.status(401).json({ error: 'No access token' }); return; }
+
+    let payload: JwtPayload;
+    try {
+      payload = jwt.verify(token, process.env.JWT_SECRET as string) as JwtPayload;
+    } catch {
+      res.status(401).json({ error: 'Invalid or expired access token' }); return;
+    }
+
+    if (roles.length > 0 && !roles.includes(payload.typ)) {
+      res.status(403).json({ error: 'Forbidden' }); return;
     }
 
     req.user = { id: payload.sub, typ: payload.typ };

@@ -2,7 +2,7 @@
 
 import React, { useCallback, useEffect, useRef, useState } from 'react';
 import { useParams, useRouter } from 'next/navigation';
-import { OfficerGuard } from '@/lib/auth';
+import { StudentGuard } from '@/lib/auth';
 import { api } from '@/lib/api';
 import { PageHeader } from '@/components/ui/PageHeader';
 import { BottomSheet } from '@/components/ui/BottomSheet';
@@ -319,8 +319,8 @@ function ManualCheckinContent() {
 
 export default function OfficerManualCheckinPage() {
   return (
-    <OfficerGuard>
+    <StudentGuard>
       <ManualCheckinContent />
-    </OfficerGuard>
+    </StudentGuard>
   );
 }

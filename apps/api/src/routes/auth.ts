@@ -1,14 +1,13 @@
 import { Router, Request, Response } from 'express';
 import bcrypt from 'bcryptjs';
 import jwt from 'jsonwebtoken';
-import crypto from 'crypto';
+import crypto from 'node:crypto';
+import { sha256 } from '../lib/crypto';
 import { z } from 'zod';
-import { PrismaClient } from '@prisma/client';
 import redis from '../lib/redis';
-import { requireAuth } from '../middleware/auth';
+import { prisma } from '../lib/prisma';
 
 const router = Router();
-const prisma = new PrismaClient();
 
 // ─── Schemas ──────────────────────────────────────────────────────────────────
 
@@ -31,9 +30,6 @@ const REFRESH_COOKIE = 'refresh_token';
 const ACCESS_TTL_MS = 15 * 60 * 1000; // 15 minutes
 const REFRESH_TTL_MS = 7 * 24 * 60 * 60 * 1000; // 7 days
 
-function sha256(value: string): string {
-  return crypto.createHash('sha256').update(value).digest('hex');
-}
 
 function issueAccessToken(teacherId: string): string {
   return jwt.sign(
@@ -221,6 +217,9 @@ router.post('/logout', async (req: Request, res: Response): Promise<void> => {
 });
 
 // ─── GET /api/auth/me — works for both teacher and student ────────────────────
+// Manual JWT verification is used here (instead of requireAuth) so that both
+// 'teacher' and 'student' token types are accepted in a single handler without
+// two separate middleware passes.
 
 router.get('/me', async (req: Request, res: Response): Promise<void> => {
   const token: string | undefined = req.cookies?.access_token;

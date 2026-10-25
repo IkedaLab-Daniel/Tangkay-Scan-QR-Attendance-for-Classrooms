@@ -1,5 +1,5 @@
 import 'dotenv/config';
-import express, { Request, Response } from 'express';
+import express, { Request, Response, NextFunction } from 'express';
 import cookieParser from 'cookie-parser';
 import cors from 'cors';
 import morgan from 'morgan';
@@ -15,7 +15,7 @@ import scanRouter from './routes/scan';
 import manualRouter from './routes/manual';
 import { roomSessionsRouter, sessionRecordsRouter } from './routes/dashboard';
 import backgroundRouter, { PRESETS, adminDeleteBackground } from './routes/background';
-import { requireAuth } from './middleware/auth';
+import { requireAuth, requireAnyAuth } from './middleware/auth';
 import * as mailerLib from './lib/mailer';
 import { createEmailWorker } from './workers/emailWorker';
 import { createMagicLinkWorker } from './workers/magicLinkWorker';
@@ -89,27 +89,7 @@ app.delete('/api/admin/rooms/:id/background', requireAuth('teacher'), adminDelet
 
 app.get(
   '/api/uploads/selfies/:filename',
-  (req: Request, res: Response, next) => {
-    const token: string | undefined = req.cookies?.access_token;
-    if (!token) {
-      res.status(401).json({ error: 'No access token' });
-      return;
-    }
-    let payload: { sub: string; typ: string };
-    try {
-      // eslint-disable-next-line @typescript-eslint/no-var-requires
-      const jwt = require('jsonwebtoken') as typeof import('jsonwebtoken');
-      payload = jwt.verify(token, process.env.JWT_SECRET as string) as { sub: string; typ: string };
-    } catch {
-      res.status(401).json({ error: 'Invalid or expired access token' });
-      return;
-    }
-    if (payload.typ !== 'teacher' && payload.typ !== 'student') {
-      res.status(403).json({ error: 'Forbidden' });
-      return;
-    }
-    next();
-  },
+  requireAnyAuth('teacher', 'student'),
   (req: Request, res: Response): void => {
     const filename = path.basename(req.params.filename);
     const filePath = path.join(process.cwd(), 'uploads', 'selfies', filename);
@@ -125,28 +105,7 @@ app.get(
 
 app.get(
   '/api/uploads/manual/:filename',
-  (req: Request, res: Response, next) => {
-    // Allow teacher or officer (student) — check token typ first, then serve
-    const token: string | undefined = req.cookies?.access_token;
-    if (!token) {
-      res.status(401).json({ error: 'No access token' });
-      return;
-    }
-    let payload: { sub: string; typ: string };
-    try {
-      // eslint-disable-next-line @typescript-eslint/no-var-requires
-      const jwt = require('jsonwebtoken') as typeof import('jsonwebtoken');
-      payload = jwt.verify(token, process.env.JWT_SECRET as string) as { sub: string; typ: string };
-    } catch {
-      res.status(401).json({ error: 'Invalid or expired access token' });
-      return;
-    }
-    if (payload.typ !== 'teacher' && payload.typ !== 'student') {
-      res.status(403).json({ error: 'Forbidden' });
-      return;
-    }
-    next();
-  },
+  requireAnyAuth('teacher', 'student'),
   (req: Request, res: Response): void => {
     const filename = path.basename(req.params.filename); // sanitise — no path traversal
     const filePath = path.join(process.cwd(), 'uploads', 'manual', filename);
@@ -157,6 +116,11 @@ app.get(
     res.sendFile(filePath);
   },
 );
+
+app.use((err: Error, _req: Request, res: Response, _next: NextFunction) => {
+  console.error('[unhandled]', err);
+  res.status(500).json({ error: 'Internal server error' });
+});
 
 if (require.main === module) {
   // Start email workers (skip in test to avoid opening SMTP/Redis connections)

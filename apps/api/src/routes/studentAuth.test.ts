@@ -1,5 +1,6 @@
 import request from 'supertest';
-import crypto from 'crypto';
+import crypto from 'node:crypto';
+import { sha256 } from '../lib/crypto';
 import { PrismaClient } from '@prisma/client';
 import app from '../index';
 import redis from '../lib/redis';
@@ -20,9 +21,6 @@ function parseCookies(res: request.Response): Record<string, string> {
   return cookies;
 }
 
-function sha256(value: string): string {
-  return crypto.createHash('sha256').update(value).digest('hex');
-}
 
 async function signupTeacher(email: string, name = 'Teacher'): Promise<{ accessCookie: string }> {
   const res = await request(app)

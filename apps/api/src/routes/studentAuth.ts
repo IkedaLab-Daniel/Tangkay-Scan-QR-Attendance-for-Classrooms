@@ -1,15 +1,15 @@
 import { Router, Request, Response } from 'express';
-import crypto from 'crypto';
+import crypto from 'node:crypto';
+import { sha256 } from '../lib/crypto';
 import bcrypt from 'bcryptjs';
 import jwt from 'jsonwebtoken';
 import { z } from 'zod';
-import { PrismaClient } from '@prisma/client';
 import redis from '../lib/redis';
 import { emailQueue } from '../lib/queue';
 import { requireAuth } from '../middleware/auth';
+import { prisma } from '../lib/prisma';
 
 const router = Router();
-const prisma = new PrismaClient();
 
 // ─── Schemas ──────────────────────────────────────────────────────────────────
 
@@ -50,16 +50,12 @@ const REFRESH_COOKIE = 'refresh_token';
 const ACCESS_TTL_MS = 15 * 60 * 1000;        // 15 minutes
 const REFRESH_TTL_MS = 7 * 24 * 60 * 60 * 1000; // 7 days
 const MAGIC_LINK_TTL_SECS = 15 * 60;          // 15 minutes (Redis TTL)
-const MAGIC_LINK_TTL_MS = MAGIC_LINK_TTL_SECS * 1000;
 
-const RATE_LIMIT = 500; // ! FOR TESTING
+const RATE_LIMIT = 5;
 const RATE_WINDOW_SECS = 15 * 60; // 15 minutes
 
 // ─── Helpers ──────────────────────────────────────────────────────────────────
 
-function sha256(value: string): string {
-  return crypto.createHash('sha256').update(value).digest('hex');
-}
 
 function issueStudentAccessToken(studentId: string): string {
   return jwt.sign(

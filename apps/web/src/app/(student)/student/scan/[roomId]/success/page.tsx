@@ -1,7 +1,7 @@
 'use client';
 
 import React, { useEffect, useState } from 'react';
-import { useParams, useRouter, useSearchParams } from 'next/navigation';
+import { useRouter, useSearchParams } from 'next/navigation';
 import { StudentGuard } from '@/lib/auth';
 import { SproutIcon } from '@/components/ui/SproutIcon';
 
@@ -19,7 +19,6 @@ function sublineFor(status: ScanStatus): string {
 }
 
 function SuccessContent() {
-  const { roomId } = useParams<{ roomId: string }>();
   const searchParams = useSearchParams();
   const router = useRouter();
 

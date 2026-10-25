@@ -1,12 +1,11 @@
 import { Router, Request, Response } from 'express';
 import { z } from 'zod';
-import { PrismaClient } from '@prisma/client';
-import { requireAuth } from '../middleware/auth';
+import { requireAuth, requireAnyAuth } from '../middleware/auth';
 import * as tokenRotator from '../lib/tokenRotator';
 import * as sseManager from '../lib/sseManager';
+import { prisma } from '../lib/prisma';
 
 const router = Router();
-const prisma = new PrismaClient();
 
 // ─── Schemas ──────────────────────────────────────────────────────────────────
 
@@ -16,42 +15,6 @@ const startSessionSchema = z.object({
   originLng: z.number().min(-180).max(180).optional(),
   originAccuracy: z.number().optional(),
 });
-
-// ─── Auth helpers ─────────────────────────────────────────────────────────────
-
-// We implement the combined auth check directly in each handler via a helper:
-async function resolveUser(
-  req: Request,
-  res: Response,
-): Promise<{ id: string; typ: string } | null> {
-  // Check for a valid access_token cookie manually
-  const token: string | undefined = req.cookies?.access_token;
-  if (!token) {
-    res.status(401).json({ error: 'No access token' });
-    return null;
-  }
-
-  let jwt: { sub: string; typ: string };
-  try {
-    // eslint-disable-next-line @typescript-eslint/no-var-requires
-    const jsonwebtoken = require('jsonwebtoken') as typeof import('jsonwebtoken');
-    jwt = jsonwebtoken.verify(token, process.env.JWT_SECRET as string) as {
-      sub: string;
-      typ: string;
-    };
-  } catch {
-    res.status(401).json({ error: 'Invalid or expired access token' });
-    return null;
-  }
-
-  if (jwt.typ !== 'teacher' && jwt.typ !== 'student') {
-    res.status(403).json({ error: 'Forbidden' });
-    return null;
-  }
-
-  req.user = { id: jwt.sub, typ: jwt.typ };
-  return req.user;
-}
 
 // ─── GET /api/sessions/recent?limit=N — teacher-auth ────────────────────────
 
@@ -117,10 +80,7 @@ router.get('/active', requireAuth('student'), async (req: Request, res: Response
 
 // ─── POST /api/sessions ───────────────────────────────────────────────────────
 
-router.post('/', async (req: Request, res: Response): Promise<void> => {
-  const user = await resolveUser(req, res);
-  if (!user) return;
-
+router.post('/', requireAnyAuth('teacher', 'student'), async (req: Request, res: Response): Promise<void> => {
   const parsed = startSessionSchema.safeParse(req.body);
   if (!parsed.success) {
     res.status(400).json({ error: 'Validation failed', details: parsed.error.flatten() });
@@ -136,15 +96,15 @@ router.post('/', async (req: Request, res: Response): Promise<void> => {
     return;
   }
 
-  if (user.typ === 'teacher' && room.teacher_id !== user.id) {
+  if (req.user!.typ === 'teacher' && room.teacher_id !== req.user!.id) {
     res.status(403).json({ error: 'Forbidden' });
     return;
   }
 
-  if (user.typ === 'student') {
+  if (req.user!.typ === 'student') {
     // Must be an officer of this room
     const member = await prisma.roomMember.findFirst({
-      where: { student_id: user.id, room_id: roomId, role: 'officer' },
+      where: { student_id: req.user!.id, room_id: roomId, role: 'officer' },
     });
     if (!member) {
       res.status(403).json({ error: 'Forbidden: officer role required' });
@@ -164,7 +124,7 @@ router.post('/', async (req: Request, res: Response): Promise<void> => {
   const session = await prisma.attendanceSession.create({
     data: {
       room_id: roomId,
-      started_by_officer_id: user.typ === 'student' ? user.id : null,
+      started_by_officer_id: req.user!.typ === 'student' ? req.user!.id : null,
       origin_lat: originLat,
       origin_lng: originLng,
       origin_accuracy: originAccuracy,
@@ -180,10 +140,7 @@ router.post('/', async (req: Request, res: Response): Promise<void> => {
 
 // ─── POST /api/sessions/:id/end ───────────────────────────────────────────────
 
-router.post('/:id/end', async (req: Request, res: Response): Promise<void> => {
-  const user = await resolveUser(req, res);
-  if (!user) return;
-
+router.post('/:id/end', requireAnyAuth('teacher', 'student'), async (req: Request, res: Response): Promise<void> => {
   const session = await prisma.attendanceSession.findUnique({
     where: { id: req.params.id },
     include: { room: { select: { teacher_id: true } } },
@@ -200,9 +157,9 @@ router.post('/:id/end', async (req: Request, res: Response): Promise<void> => {
   }
 
   // Authorization: teacher who owns the room OR the officer who started it
-  const isRoomTeacher = user.typ === 'teacher' && session.room.teacher_id === user.id;
+  const isRoomTeacher = req.user!.typ === 'teacher' && session.room.teacher_id === req.user!.id;
   const isStartingOfficer =
-    user.typ === 'student' && session.started_by_officer_id === user.id;
+    req.user!.typ === 'student' && session.started_by_officer_id === req.user!.id;
 
   if (!isRoomTeacher && !isStartingOfficer) {
     res.status(403).json({ error: 'Forbidden' });
@@ -222,10 +179,7 @@ router.post('/:id/end', async (req: Request, res: Response): Promise<void> => {
 
 // ─── GET /api/sessions/:id/stream ─────────────────────────────────────────────
 
-router.get('/:id/stream', async (req: Request, res: Response): Promise<void> => {
-  const user = await resolveUser(req, res);
-  if (!user) return;
-
+router.get('/:id/stream', requireAnyAuth('teacher', 'student'), async (req: Request, res: Response): Promise<void> => {
   const session = await prisma.attendanceSession.findUnique({
     where: { id: req.params.id },
     include: { room: { select: { teacher_id: true } } },
@@ -236,10 +190,20 @@ router.get('/:id/stream', async (req: Request, res: Response): Promise<void> => 
     return;
   }
 
-  // Teacher who owns the room OR any student (officer) in the room
-  if (user.typ === 'teacher' && session.room.teacher_id !== user.id) {
+  // Teacher who owns the room OR any student member of the room
+  if (req.user!.typ === 'teacher' && session.room.teacher_id !== req.user!.id) {
     res.status(403).json({ error: 'Forbidden' });
     return;
+  }
+
+  if (req.user!.typ === 'student') {
+    const isMember = await prisma.roomMember.findFirst({
+      where: { student_id: req.user!.id, room_id: session.room_id },
+    });
+    if (!isMember) {
+      res.status(403).json({ error: 'Forbidden' });
+      return;
+    }
   }
 
   // Subscribe — this keeps the response open (no res.end/res.json)
@@ -255,10 +219,7 @@ router.get('/:id/stream', async (req: Request, res: Response): Promise<void> => 
 
 // ─── GET /api/sessions/:id — teacher owner OR student officer who started it ──
 
-router.get('/:id', async (req: Request, res: Response): Promise<void> => {
-  const user = await resolveUser(req, res);
-  if (!user) return;
-
+router.get('/:id', requireAnyAuth('teacher', 'student'), async (req: Request, res: Response): Promise<void> => {
   const session = await prisma.attendanceSession.findUnique({
     where: { id: req.params.id },
     include: {
@@ -272,15 +233,15 @@ router.get('/:id', async (req: Request, res: Response): Promise<void> => {
     return;
   }
 
-  if (user.typ === 'teacher' && session.room.teacher_id !== user.id) {
+  if (req.user!.typ === 'teacher' && session.room.teacher_id !== req.user!.id) {
     res.status(403).json({ error: 'Forbidden' });
     return;
   }
 
-  if (user.typ === 'student') {
+  if (req.user!.typ === 'student') {
     // Must be the officer who started the session OR an officer of the room
     const isOfficer = await prisma.roomMember.findFirst({
-      where: { student_id: user.id, room_id: session.room_id, role: 'officer' },
+      where: { student_id: req.user!.id, room_id: session.room_id, role: 'officer' },
     });
     if (!isOfficer) {
       res.status(403).json({ error: 'Forbidden: officer role required' });

@@ -55,22 +55,6 @@ function getCurrentWeekDays(): Date[] {
   });
 }
 
-const DAY_LABELS = ['MON', 'TUE', 'WED', 'THU', 'FRI'];
-
-function isSameDay(a: Date, b: Date): boolean {
-  return (
-    a.getFullYear() === b.getFullYear() &&
-    a.getMonth() === b.getMonth() &&
-    a.getDate() === b.getDate()
-  );
-}
-
-function getWeekNumber(date: Date): number {
-  const start = new Date(date.getFullYear(), 0, 1);
-  const diff = date.getTime() - start.getTime();
-  return Math.ceil(diff / (7 * 24 * 60 * 60 * 1000));
-}
-
 /** Returns the count of weekly attendance records belonging to a specific room. */
 function getWeeklyCountForRoom(roomId: string, weeklyRecords: WeeklyRecord[]): number {
   const weekDays = getCurrentWeekDays();

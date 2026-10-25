@@ -2,7 +2,7 @@
 
 import React, { useEffect, useState } from 'react';
 import { useParams } from 'next/navigation';
-import { OfficerGuard } from '@/lib/auth';
+import { StudentGuard } from '@/lib/auth';
 import { api } from '@/lib/api';
 import { ManualRecord } from '@/lib/types';
 import { PageHeader } from '@/components/ui/PageHeader';
@@ -164,8 +164,8 @@ function ManualHistoryContent() {
 
 export default function OfficerManualHistoryPage() {
   return (
-    <OfficerGuard>
+    <StudentGuard>
       <ManualHistoryContent />
-    </OfficerGuard>
+    </StudentGuard>
   );
 }

@@ -1,10 +1,8 @@
 import { Worker, Job } from 'bullmq';
-import { PrismaClient } from '@prisma/client';
 import redis from '../lib/redis';
 import * as mailer from '../lib/mailer';
 import type { EmailJobData } from '../lib/queue';
-
-const prisma = new PrismaClient();
+import { prisma } from '../lib/prisma';
 
 // ─── Magic-link email ─────────────────────────────────────────────────────────
 

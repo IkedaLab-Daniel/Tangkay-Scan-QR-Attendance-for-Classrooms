@@ -3,7 +3,7 @@
 import React, { useEffect, useState } from 'react';
 import { useParams, useRouter } from 'next/navigation';
 import QRCode from 'react-qr-code';
-import { OfficerGuard } from '@/lib/auth';
+import { StudentGuard } from '@/lib/auth';
 import { api } from '@/lib/api';
 import { PageHeader } from '@/components/ui/PageHeader';
 
@@ -226,8 +226,8 @@ function LiveQrContent() {
 
 export default function OfficerLiveQrPage() {
   return (
-    <OfficerGuard>
+    <StudentGuard>
       <LiveQrContent />
-    </OfficerGuard>
+    </StudentGuard>
   );
 }

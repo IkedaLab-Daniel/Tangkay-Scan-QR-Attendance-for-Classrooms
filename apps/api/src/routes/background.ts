@@ -3,17 +3,16 @@ import path from 'path';
 import fs from 'fs';
 import multer from 'multer';
 import { z } from 'zod';
-import { PrismaClient } from '@prisma/client';
-import { requireAuth } from '../middleware/auth';
+import { requireAuth, requireAnyAuth } from '../middleware/auth';
 import {
   validateImageSignature,
   processImage,
   computeLuminanceScrim,
   generatePlaceholder,
 } from '../lib/imageProcessor';
+import { prisma } from '../lib/prisma';
 
 const router = Router({ mergeParams: true });
-const prisma = new PrismaClient();
 
 // ─── Directories ──────────────────────────────────────────────────────────────
 
@@ -165,58 +164,38 @@ router.delete(
 
 router.get(
   '/background-image',
+  // Preset branch: public, no auth — exits early; custom branch falls through to auth middleware
+  async (req: Request, res: Response, next): Promise<void> => {
+    const presetQuery = req.query.preset as string | undefined;
+    if (!presetQuery) { next(); return; }
+
+    const roomId = req.params.id;
+    const valid = PRESETS.some((p) => p.id === presetQuery);
+    if (!valid) {
+      res.status(404).json({ error: 'Preset not found' });
+      return;
+    }
+
+    // Optionally verify this room uses this preset (best-effort, no auth)
+    const room = await prisma.room.findUnique({ where: { id: roomId } });
+    if (!room || room.background_type !== 'preset' || room.background_preset_id !== presetQuery) {
+      res.status(404).json({ error: 'No preset background for this room' });
+      return;
+    }
+
+    const presetPath = path.join(PRESET_DIR, `${presetQuery}.webp`);
+    if (!fs.existsSync(presetPath)) {
+      res.status(404).json({ error: 'Preset file not found' });
+      return;
+    }
+
+    res.setHeader('Content-Type', 'image/webp');
+    res.setHeader('Cache-Control', 'public, max-age=31536000, immutable');
+    res.sendFile(presetPath);
+  },
+  requireAnyAuth('teacher', 'student'),
   async (req: Request, res: Response): Promise<void> => {
     const roomId = req.params.id;
-
-    // ── Preset branch: public, no auth ──────────────────────────────────────
-    const presetQuery = req.query.preset as string | undefined;
-    if (presetQuery) {
-      const valid = PRESETS.some((p) => p.id === presetQuery);
-      if (!valid) {
-        res.status(404).json({ error: 'Preset not found' });
-        return;
-      }
-
-      // Optionally verify this room uses this preset (best-effort, no auth)
-      const room = await prisma.room.findUnique({ where: { id: roomId } });
-      if (!room || room.background_type !== 'preset' || room.background_preset_id !== presetQuery) {
-        res.status(404).json({ error: 'No preset background for this room' });
-        return;
-      }
-
-      const presetPath = path.join(PRESET_DIR, `${presetQuery}.webp`);
-      if (!fs.existsSync(presetPath)) {
-        res.status(404).json({ error: 'Preset file not found' });
-        return;
-      }
-
-      res.setHeader('Content-Type', 'image/webp');
-      res.setHeader('Cache-Control', 'public, max-age=31536000, immutable');
-      res.sendFile(presetPath);
-      return;
-    }
-
-    // ── Custom background: auth required ────────────────────────────────────
-    const token: string | undefined = req.cookies?.access_token;
-    if (!token) {
-      res.status(401).json({ error: 'No access token' });
-      return;
-    }
-
-    let payload: { sub: string; typ: string };
-    try {
-      // eslint-disable-next-line @typescript-eslint/no-var-requires
-      const jwt = require('jsonwebtoken') as typeof import('jsonwebtoken');
-      payload = jwt.verify(token, process.env.JWT_SECRET as string) as { sub: string; typ: string };
-    } catch {
-      res.status(401).json({ error: 'Invalid or expired access token' });
-      return;
-    }
-
-    if (payload.typ !== 'teacher' && payload.typ !== 'student') {
-      res.status(403).json({ error: 'Forbidden' });
-      return;
-    }
 
     const room = await prisma.room.findUnique({ where: { id: roomId } });
     if (!room) {
@@ -230,15 +209,15 @@ router.get(
     }
 
     // Authorisation: teacher owns room, OR student/officer is enrolled
-    if (payload.typ === 'teacher') {
-      if (room.teacher_id !== payload.sub) {
+    if (req.user!.typ === 'teacher') {
+      if (room.teacher_id !== req.user!.id) {
         res.status(403).json({ error: 'Forbidden' });
         return;
       }
     } else {
       // student or officer
       const membership = await prisma.roomMember.findUnique({
-        where: { room_id_student_id: { room_id: roomId, student_id: payload.sub } },
+        where: { room_id_student_id: { room_id: roomId, student_id: req.user!.id } },
       });
       if (!membership) {
         res.status(403).json({ error: 'Forbidden: not enrolled in this room' });
@@ -266,29 +245,8 @@ const reportSchema = z.object({
 
 router.post(
   '/background/report',
+  requireAnyAuth('student'),
   async (req: Request, res: Response): Promise<void> => {
-    // Accept student or officer tokens (both have typ === 'student')
-    const token: string | undefined = req.cookies?.access_token;
-    if (!token) {
-      res.status(401).json({ error: 'No access token' });
-      return;
-    }
-
-    let payload: { sub: string; typ: string };
-    try {
-      // eslint-disable-next-line @typescript-eslint/no-var-requires
-      const jwt = require('jsonwebtoken') as typeof import('jsonwebtoken');
-      payload = jwt.verify(token, process.env.JWT_SECRET as string) as { sub: string; typ: string };
-    } catch {
-      res.status(401).json({ error: 'Invalid or expired access token' });
-      return;
-    }
-
-    if (payload.typ !== 'student') {
-      res.status(403).json({ error: 'Forbidden: students only' });
-      return;
-    }
-
     const parsed = reportSchema.safeParse(req.body);
     if (!parsed.success) {
       res.status(400).json({ error: 'Validation failed', details: parsed.error.flatten() });
@@ -304,7 +262,7 @@ router.post(
 
     // Verify enrolment
     const membership = await prisma.roomMember.findUnique({
-      where: { room_id_student_id: { room_id: roomId, student_id: payload.sub } },
+      where: { room_id_student_id: { room_id: roomId, student_id: req.user!.id } },
     });
     if (!membership) {
       res.status(403).json({ error: 'Forbidden: not enrolled in this room' });
@@ -314,7 +272,7 @@ router.post(
     await prisma.backgroundReport.create({
       data: {
         room_id: roomId,
-        reported_by_student_id: payload.sub,
+        reported_by_student_id: req.user!.id,
         reason: parsed.data.reason,
       },
     });
